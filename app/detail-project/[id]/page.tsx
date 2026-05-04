@@ -14,67 +14,25 @@ interface DetailProjectPageProps {
   }>;
 }
 
-// Simulation d'API (à remplacer plus tard par ton fetch vers Express)
 async function getProjectById(id: string): Promise<ProjectDetail | null> {
-  await new Promise((resolve) => setTimeout(resolve, 500));
+  try {
+    // On appelle ton API locale (assure-toi que le port est bien le 3001)
+    const response = await fetch(`http://localhost:3001/api/projects/${id}`, {
+      // On empêche Next.js de mettre la réponse en cache pour voir les modifications en direct
+      cache: "no-store",
+    });
 
-  if (id === "1") {
-    return {
-      id: "1",
-      name: "LogPulse",
-      description: "Agrégateur de logs en temps réel auto-hébergé.",
-      status: "active",
-      created_at: "2026-04-10T10:00:00Z",
-      steps: [
-        {
-          id: "s1",
-          project_id: "1",
-          number: 1,
-          title: "Initialisation repo",
-          status: "done",
-          note: "Utilisation de npm workspaces",
-          updated_at: "2026-04-10T10:30:00Z",
-        },
-        {
-          id: "s2",
-          project_id: "1",
-          number: 2,
-          title: "Création de la BDD",
-          status: "in_progress",
-          note: null,
-          updated_at: "2026-04-11T09:00:00Z",
-        },
-        {
-          id: "s4",
-          project_id: "1",
-          number: 4,
-          title: "Maquette UI",
-          status: "skipped",
-          note: "Fait directement en code",
-          updated_at: "2026-04-10T10:00:00Z",
-        },
-        {
-          id: "s3",
-          project_id: "1",
-          number: 3,
-          title: "Route API pour les logs",
-          status: "todo",
-          note: "Ne pas oublier Zod pour valider l'entrée",
-          updated_at: "2026-04-10T10:00:00Z",
-        },
-        {
-          id: "s5",
-          project_id: "1",
-          number: 5,
-          title: "Dashboard Front",
-          status: "todo",
-          note: null,
-          updated_at: "2026-04-10T10:00:00Z",
-        },
-      ],
-    };
+    if (!response.ok) {
+      if (response.status === 404) return null;
+      throw new Error(`Erreur HTTP: ${response.status}`);
+    }
+
+    const data: ProjectDetail = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Erreur lors de la récupération du projet:", error);
+    return null;
   }
-  return null;
 }
 
 export default async function DetailProjectPage({
