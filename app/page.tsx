@@ -22,7 +22,7 @@ export default function Home() {
             <CardProject
               key={project.id}
               currentStatus={statusProjects[project.status]}
-              Project={project.Infos}
+              Project={project}
             />
           ))}
         </div>

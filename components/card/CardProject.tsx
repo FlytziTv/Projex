@@ -1,4 +1,7 @@
+import Link from "next/link";
+
 interface CardProjectProps {
+  id: number;
   name: string;
   description: string;
   tasks: {
@@ -56,9 +59,12 @@ export function CardProject({
         />
       </div>
 
-      <button className="w-full p-2 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors duration-300 cursor-pointer">
+      <Link
+        href={`/detail-project/${Project.id}`}
+        className="w-full p-2 rounded-md bg-primary text-center text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors duration-300 cursor-pointer"
+      >
         Voir les details
-      </button>
+      </Link>
     </div>
   );
 }
