@@ -34,27 +34,21 @@ export function CardProject({
         </div>
 
         <div
-          className={
-            currentStatus.bg +
-            " aspect-square w-4 border rounded-full flex items-center justify-center"
-          }
+          className={`${currentStatus.bg} aspect-square w-4 border rounded-full flex items-center justify-center`}
         >
           <div
-            className={
-              currentStatus.led +
-              " aspect-square w-1.5 rounded-full animate-pulse "
-            }
+            className={`${currentStatus.led} aspect-square w-1.5 rounded-full animate-pulse `}
           />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <TasksProject
-          value={Project.tasks.uncompleted || "-"}
+          value={Project.tasks.uncompleted ?? "-"}
           label="Etapes a realiser"
         />
         <TasksProject
-          value={Project.tasks.completed || "-"}
+          value={Project.tasks.completed ?? "-"}
           label="Etapes realisees"
         />
       </div>
