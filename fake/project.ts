@@ -1,53 +1,46 @@
-interface ProjectProps {
+import { ProjectStatus } from "@/lib/status-project";
+
+// Optionnel mais recommandé : typer ton mock de données
+export interface FakeProject {
   id: number;
-  status: "online" | "pause" | "offline" | "idle";
   name: string;
   description: string;
+  status: ProjectStatus; // <-- C'est ici que la magie opère
   tasks: {
     uncompleted: number;
     completed: number;
   };
 }
 
-export const metadataProjects: ProjectProps[] = [
+export const metadataProjects: FakeProject[] = [
   {
     id: 1,
-    status: "online",
-    name: "Project 1",
-    description: "Project description",
+    name: "LogPulse",
+    description: "Agrégateur de logs en temps réel auto-hébergé.",
+    status: "active",
     tasks: {
-      uncompleted: 19,
-      completed: 23,
+      uncompleted: 1,
+      completed: 2,
     },
   },
   {
     id: 2,
-    status: "pause",
-    name: "Project 2",
-    description: "Project description",
+    name: "Ancien Projet",
+    description: "Un vieux projet test.",
+    status: "abandoned",
     tasks: {
       uncompleted: 5,
-      completed: 10,
+      completed: 0,
     },
   },
   {
     id: 3,
-    status: "offline",
-    name: "Project 3",
-    description: "Project description",
-    tasks: {
-      uncompleted: 0,
-      completed: 15,
-    },
-  },
-  {
-    id: 4,
-    status: "idle",
-    name: "Project 4",
-    description: "Project description",
+    name: "Projet en attente",
+    description: "En attente de validation client.",
+    status: "paused",
     tasks: {
       uncompleted: 10,
-      completed: 0,
+      completed: 5,
     },
   },
 ];
