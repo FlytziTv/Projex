@@ -1,5 +1,6 @@
 import { CardProject } from "@/components/card/CardProject";
 import { SZNav } from "@/components/layout/NavBar";
+import { metadataProjects } from "@/fake/project";
 import { pages } from "@/lib/nav-config";
 import { statusProjects } from "@/lib/status-project";
 
@@ -17,15 +18,13 @@ export default function Home() {
         </div>
 
         <div className="w-full grid grid-cols-4 gap-4">
-          <CardProject
-            currentStatus={statusProjects.online}
-            Project={{ name: "Project 1", description: "Description " }}
-          />
-
-          <CardProject
-            currentStatus={statusProjects.pause}
-            Project={{ name: "Project 2", description: "Description 2" }}
-          />
+          {metadataProjects.map((project) => (
+            <CardProject
+              key={project.id}
+              currentStatus={statusProjects[project.status]}
+              Project={project.Infos}
+            />
+          ))}
         </div>
       </div>
     </div>

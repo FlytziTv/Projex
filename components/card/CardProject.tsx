@@ -1,13 +1,23 @@
 interface CardProjectProps {
   name: string;
   description: string;
+  tasks: {
+    uncompleted: number;
+    completed: number;
+  };
+}
+
+interface CurrentStatusProps {
+  name: string;
+  bg: string;
+  led: string;
 }
 
 export function CardProject({
   currentStatus,
   Project,
 }: {
-  currentStatus;
+  currentStatus: CurrentStatusProps;
   Project: CardProjectProps;
 }) {
   return (
@@ -36,13 +46,13 @@ export function CardProject({
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <StatusProject
-          value={currentStatus.value || "18"}
-          label={currentStatus.label || "Etapes a realiser"}
+        <TasksProject
+          value={Project.tasks.uncompleted || "-"}
+          label="Etapes a realiser"
         />
-        <StatusProject
-          value={currentStatus.value || "30"}
-          label={currentStatus.label || "Etapes realisees"}
+        <TasksProject
+          value={Project.tasks.completed || "-"}
+          label="Etapes realisees"
         />
       </div>
 
@@ -53,7 +63,13 @@ export function CardProject({
   );
 }
 
-function StatusProject({ value, label }: { value: string; label: string }) {
+function TasksProject({
+  value,
+  label,
+}: {
+  value: number | string;
+  label: string;
+}) {
   return (
     <div className="bg-muted p-3 rounded-sm w-full flex flex-col items-center justify-center">
       <span className="text-base text-foreground font-medium">{value}</span>
