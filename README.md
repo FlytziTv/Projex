@@ -23,13 +23,13 @@ projex status
 
 ## Stack technique
 
-| Couche | Technologie |
-|---|---|
-| Frontend | Next.js 14, TypeScript, Tailwind CSS |
-| Backend | Express, TypeScript, JWT, Zod |
+| Couche          | Technologie                          |
+| --------------- | ------------------------------------ |
+| Frontend        | Next.js 14, TypeScript, Tailwind CSS |
+| Backend         | Express, TypeScript, JWT, Zod        |
 | Base de données | PostgreSQL, SQL vanilla, driver `pg` |
-| CLI | Node.js, TypeScript, Commander.js |
-| Monorepo | npm workspaces |
+| CLI             | Node.js, TypeScript, Commander.js    |
+| Monorepo        | npm workspaces                       |
 
 ---
 
@@ -110,6 +110,7 @@ npm run dev
 ## Variables d'environnement
 
 **apps/api/.env**
+
 ```env
 DATABASE_URL=postgresql://postgres:password@localhost:5432/projex
 JWT_SECRET=votre_secret_jwt
@@ -117,6 +118,7 @@ PORT=3001
 ```
 
 **apps/web/.env**
+
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:3001/api
 ```
@@ -134,6 +136,7 @@ npm run lint         # Lint l'ensemble du monorepo
 ```
 
 **CLI (après installation globale)**
+
 ```bash
 projex init          # Lie le dossier courant à un projet
 projex status        # Affiche les étapes du projet courant
