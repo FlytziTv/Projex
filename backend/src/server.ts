@@ -1,6 +1,8 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import { pool, testConnection } from "./db";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 const app = express();
 
@@ -110,3 +112,111 @@ app.listen(PORT, async () => {
   console.log(`Serveur API démarré sur http://localhost:${PORT}`);
   await testConnection();
 });
+
+// Auth
+
+const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret";
+
+// Inscription (Register)
+app.post(
+  "/api/auth/register",
+  async (req: Request, res: Response): Promise<void> => {
+    const { name, email, password } = req.body;
+
+    if (!email || !password || !name) {
+      res.status(400).json({ error: "Tous les champs sont requis" });
+      return;
+    }
+
+    try {
+      // 1. Vérifier si l'utilisateur existe déjà
+      const userExists = await pool.query(
+        "SELECT id FROM users WHERE email = $1",
+        [email],
+      );
+      if (userExists.rows.length > 0) {
+        res.status(409).json({ error: "Cet email est déjà utilisé" });
+        return;
+      }
+
+      // 2. Hacher le mot de passe (le 10 est le "salt rounds", le niveau de complexité)
+      const salt = await bcrypt.genSalt(10);
+      const passwordHash = await bcrypt.hash(password, salt);
+
+      // 3. Insérer le nouvel utilisateur dans la BDD
+      const insertQuery = `
+      INSERT INTO users (name, email, password_hash) 
+      VALUES ($1, $2, $3) 
+      RETURNING id, name, email
+    `;
+      const newUser = await pool.query(insertQuery, [
+        name,
+        email,
+        passwordHash,
+      ]);
+
+      res.status(201).json({
+        message: "Utilisateur créé avec succès",
+        user: newUser.rows[0],
+      });
+    } catch (error) {
+      console.error("Erreur lors de l'inscription :", error);
+      res.status(500).json({ error: "Erreur interne du serveur" });
+    }
+  },
+);
+
+// Connexion (Login)
+app.post(
+  "/api/auth/login",
+  async (req: Request, res: Response): Promise<void> => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      res.status(400).json({ error: "Email et mot de passe requis" });
+      return;
+    }
+
+    try {
+      // 1. Chercher l'utilisateur
+      const userResult = await pool.query(
+        "SELECT * FROM users WHERE email = $1",
+        [email],
+      );
+      if (userResult.rows.length === 0) {
+        res.status(401).json({ error: "Identifiants incorrects" });
+        return;
+      }
+
+      const user = userResult.rows[0];
+
+      // 2. Vérifier que le mot de passe correspond au hash enregistré
+      const validPassword = await bcrypt.compare(password, user.password_hash);
+      if (!validPassword) {
+        res.status(401).json({ error: "Identifiants incorrects" });
+        return;
+      }
+
+      // 3. Générer le Token JWT (valable 7 jours ici)
+      const token = jwt.sign(
+        { userId: user.id, email: user.email },
+        JWT_SECRET,
+        { expiresIn: "7d" },
+      );
+
+      // 4. Renvoyer le token et les infos de base
+      res.json({
+        message: "Connexion réussie",
+        token: token,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+        },
+      });
+    } catch (error) {
+      console.error("Erreur lors de la connexion :", error);
+      res.status(500).json({ error: "Erreur interne du serveur" });
+    }
+  },
+);
