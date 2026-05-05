@@ -102,4 +102,50 @@ program
         console.error(chalk_1.default.red("Erreur lors de l'initialisation du projet :"), error);
     }
 });
+// ------------------------------------------------------------------
+// COMMANDE: projex status
+// ------------------------------------------------------------------
+program
+    .command("status")
+    .description("Affiche le statut actuel du projet lié à ce dossier")
+    .action(async () => {
+    try {
+        const LOCAL_CONFIG_PATH = path.join(process.cwd(), ".projex.json");
+        // 1. On vérifie si on est bien dans un dossier lié à un projet
+        if (!fs.existsSync(LOCAL_CONFIG_PATH)) {
+            console.log(chalk_1.default.yellow("Aucun projet lié dans ce dossier. Utilise 'projex init <id>' d'abord."));
+            return;
+        }
+        const localConfig = JSON.parse(fs.readFileSync(LOCAL_CONFIG_PATH, "utf-8"));
+        const projectId = localConfig.projectId;
+        // 2. On vérifie si le terminal est bien connecté
+        if (!fs.existsSync(GLOBAL_CONFIG_PATH)) {
+            console.log(chalk_1.default.yellow("Terminal non connecté. Utilise 'projex login <token>' d'abord."));
+            return;
+        }
+        const globalConfig = JSON.parse(fs.readFileSync(GLOBAL_CONFIG_PATH, "utf-8"));
+        const cliToken = globalConfig.cliToken;
+        console.log(chalk_1.default.gray("Interrogation de l'API Projex..."));
+        // 3. On appelle ton API
+        const response = await fetch(`http://localhost:3001/api/cli/projects/${projectId}/status`, {
+            headers: {
+                Authorization: `Bearer ${cliToken}`,
+                "Content-Type": "application/json",
+            },
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            console.error(chalk_1.default.red(`Erreur de l'API : ${data.error}`));
+            return;
+        }
+        // 4. On affiche le résultat de manière propre et colorée
+        console.log("\n" + chalk_1.default.blueBright.bold("=== STATUT DU PROJET ==="));
+        console.log(`${chalk_1.default.bold("Nom :")} ${chalk_1.default.white(data.project.name)}`);
+        console.log(`${chalk_1.default.bold("Statut :")} ${chalk_1.default.green(data.project.status)}`);
+        console.log(chalk_1.default.blueBright.bold("========================") + "\n");
+    }
+    catch (error) {
+        console.error(chalk_1.default.red("❌ Erreur lors de la récupération du statut :"), error);
+    }
+});
 program.parse(process.argv);

@@ -249,20 +249,72 @@ app.post(
 
       // 4. On sauvegarde ce nouveau token dans la base de données
       const insertQuery = `
-      INSERT INTO cli_tokens (user_id, token) 
+      INSERT INTO cli_tokens (user_id, token_hash) 
       VALUES ($1, $2) 
-      RETURNING token, created_at
+      RETURNING token_hash, created_at
     `;
       const result = await pool.query(insertQuery, [userId, cliToken]);
 
       res.status(201).json({
         message: "Token CLI généré avec succès",
-        cliToken: result.rows[0].token,
+        cliToken: result.rows[0].token_hash,
       });
     } catch (error) {
       // Si le JWT est faux ou expiré, ça tombe ici
       console.error("Erreur lors de la génération du token CLI :", error);
       res.status(403).json({ error: "Session invalide ou expirée" });
+    }
+  },
+);
+
+app.get(
+  "/api/cli/projects/:id/status",
+  async (req: Request, res: Response): Promise<void> => {
+    // 1. On récupère le token CLI dans les headers
+    const authHeader = req.headers.authorization;
+    const projectId = req.params.id;
+
+    // On vérifie que c'est bien un token CLI (qui commence par px_)
+    if (!authHeader || !authHeader.startsWith("Bearer px_")) {
+      res.status(401).json({ error: "Token CLI manquant ou format invalide." });
+      return;
+    }
+
+    const cliToken = authHeader.split(" ")[1];
+
+    try {
+      // 2. On cherche à qui appartient ce token dans la base de données
+      const userQuery = `SELECT user_id FROM cli_tokens WHERE token_hash = $1`;
+      const userResult = await pool.query(userQuery, [cliToken]);
+
+      if (userResult.rows.length === 0) {
+        res.status(401).json({ error: "Token CLI non reconnu ou révoqué." });
+        return;
+      }
+
+      const userId = userResult.rows[0].user_id;
+
+      // 3. On récupère le projet (seulement si c'est le sien !)
+      // J'utilise "title" et "status", adapte si tes colonnes ont un nom différent dans ta table projects
+      const projectQuery = `
+      SELECT id, name, status 
+      FROM projects 
+      WHERE id = $1 AND user_id = $2
+    `;
+      const projectResult = await pool.query(projectQuery, [projectId, userId]);
+
+      if (projectResult.rows.length === 0) {
+        res.status(404).json({ error: "Projet introuvable ou accès refusé." });
+        return;
+      }
+
+      // On renvoie les données au terminal !
+      res.json({
+        project: projectResult.rows[0],
+      });
+    } catch (error) {
+      console.error("Erreur lors de la requête CLI status :", error);
+      res.status(500).json({ error: "Erreur interne du serveur." });
     }
   },
 );

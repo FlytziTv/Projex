@@ -14,7 +14,7 @@ export function CliTokenGenerator() {
 
     try {
       // 1. On récupère le badge de connexion
-      const jwtToken = localStorage.getItem("projex_token");
+      const jwtToken = localStorage.getItem("projex_token")?.replace(/"/g, "");
 
       if (!jwtToken) {
         throw new Error("Vous devez être connecté");
