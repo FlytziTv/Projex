@@ -295,7 +295,6 @@ app.get(
       const userId = userResult.rows[0].user_id;
 
       // 3. On récupère le projet (seulement si c'est le sien !)
-      // J'utilise "title" et "status", adapte si tes colonnes ont un nom différent dans ta table projects
       const projectQuery = `
       SELECT id, name, status 
       FROM projects 
@@ -308,9 +307,22 @@ app.get(
         return;
       }
 
-      // On renvoie les données au terminal !
+      const project = projectResult.rows[0];
+
+      const stepsQuery = `
+        SELECT * 
+        FROM steps 
+        WHERE project_id = $1 
+        ORDER BY number ASC
+      `;
+      const stepsResult = await pool.query(stepsQuery, [projectId]);
+
+      // On attache les étapes au projet
+      project.steps = stepsResult.rows;
+
+      // 4. On renvoie les données complètes au terminal !
       res.json({
-        project: projectResult.rows[0],
+        project: project,
       });
     } catch (error) {
       console.error("Erreur lors de la requête CLI status :", error);
