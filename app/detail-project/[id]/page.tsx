@@ -14,6 +14,7 @@ import {
 import NavBar, { SidebarProvider } from "@/components/layout/NavBar";
 import { CopyIdButton } from "@/components/actions/CopyIdButton";
 import DocsButton from "@/components/actions/DocsButton";
+import { CreateStepForm } from "@/components/projects/CreateStepForm";
 
 interface DetailProjectPageProps {
   params: Promise<{
@@ -112,10 +113,7 @@ export default async function DetailProjectPage({
             {/* BARRE D'ACTIONS DU PROJET */}
             <div className="flex items-center gap-2 w-full md:w-auto shrink-0 mt-4 md:mt-0">
               {/* Bouton Primaire : Ajouter une étape */}
-              <button className="flex items-center gap-2 bg-foreground text-background px-3 py-1.5 rounded-md text-sm font-medium hover:bg-foreground/90 transition-colors duration-200 cursor-pointer shadow-sm">
-                <Plus size={16} />
-                Nouvelle étape
-              </button>
+              <CreateStepForm projectId={project.id} />
 
               {/* Bouton Secondaire : Copier l'ID */}
               <CopyIdButton projectId={project.id} />

@@ -358,3 +358,66 @@ app.post(
     }
   },
 );
+
+app.post(
+  "/api/projects/:id/steps",
+  async (req: Request, res: Response): Promise<void> => {
+    const authHeader = req.headers.authorization;
+    const projectId = req.params.id;
+    const { title, note } = req.body;
+
+    if (!title || title.trim() === "") {
+      res.status(400).json({ error: "Le titre de l'étape est obligatoire." });
+      return;
+    }
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      res.status(401).json({ error: "Non autorisé." });
+      return;
+    }
+
+    const jwtToken = authHeader.split(" ")[1];
+
+    try {
+      // 1. Vérifier le JWT
+      const decoded = jwt.verify(jwtToken, JWT_SECRET) as { userId: number };
+      const userId = decoded.userId;
+      // 2. Vérifier que le projet appartient à l'utilisateur
+      const projectQuery = `
+        SELECT id FROM projects WHERE id = $1 AND user_id = $2
+      `;
+      const projectResult = await pool.query(projectQuery, [projectId, userId]);
+
+      if (projectResult.rows.length === 0) {
+        res.status(404).json({ error: "Projet introuvable ou accès refusé." });
+        return;
+      }
+
+      // 3. Trouver le numéro de la prochaine étape
+      const stepNumberQuery = `
+        SELECT COALESCE(MAX(number), 0) + 1 AS next_number
+        FROM steps
+        WHERE project_id = $1
+      `;
+      const stepNumberResult = await pool.query(stepNumberQuery, [projectId]);
+      const nextStepNumber = stepNumberResult.rows[0].next_number;
+
+      // 4. Insérer la nouvelle étape (en statut 'todo' par défaut)
+      const insertQuery = `
+        INSERT INTO steps (project_id, number, title, status, note)
+        VALUES ($1, $2, $3, 'todo', $4)
+        RETURNING *
+      `;
+      const newStepResult = await pool.query(insertQuery, [
+        projectId,
+        nextStepNumber,
+        title,
+        note || "",
+      ]);
+      res.status(201).json(newStepResult.rows[0]);
+    } catch (error) {
+      console.error("Erreur création étape :", error);
+      res.status(403).json({ error: "Session invalide." });
+    }
+  },
+);
