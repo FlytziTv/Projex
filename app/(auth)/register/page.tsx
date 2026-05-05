@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { GitHubIcon } from "@/components/icons/GitHub";
 import { Logo } from "@/components/icons/logo";
 import {
@@ -7,6 +11,43 @@ import {
 } from "@/components/ui/MyInput";
 
 export default function RegisterPage() {
+  const router = useRouter();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(""); // On réinitialise l'erreur à chaque tentative
+
+    try {
+      const response = await fetch("http://localhost:3001/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Une erreur est survenue");
+      }
+
+      // Si tout s'est bien passé, on le renvoie vers la page de connexion
+      router.push("/login");
+    } catch (err) {
+      console.error(err);
+
+      // On vérifie proprement le type de l'erreur
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Une erreur inattendue est survenue");
+      }
+    }
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center p-6 md:p-10">
       <div className=" max-w-lg w-full flex flex-col items-center gap-6 ">
@@ -24,10 +65,21 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        <form className="w-full flex flex-col gap-6">
+        {error && (
+          <p className="text-sm text-red-500 font-medium text-center w-full bg-red-500/10 p-2 rounded">
+            {error}
+          </p>
+        )}
+
+        <form className="w-full flex flex-col gap-6" onSubmit={handleSubmit}>
           <InputGroup>
             <InputGroupLabel htmlFor="name">Name</InputGroupLabel>
-            <InputGroupInput id="name" placeholder="Enter your name" />
+            <InputGroupInput
+              id="name"
+              placeholder="Enter your name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
           </InputGroup>
 
           <InputGroup>
@@ -36,6 +88,8 @@ export default function RegisterPage() {
               id="email"
               type="email"
               placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </InputGroup>
 
@@ -45,6 +99,8 @@ export default function RegisterPage() {
               id="password"
               type="password"
               placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </InputGroup>
 
