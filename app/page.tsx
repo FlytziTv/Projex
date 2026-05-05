@@ -3,6 +3,7 @@ import { SZNav } from "@/components/layout/NavBar";
 import { pages } from "@/lib/nav-config";
 import { statusProjects, ProjectStatus } from "@/lib/status-project";
 import { AuthGuard } from "@/components/auth/AuthGuard";
+import { CliTokenGenerator } from "@/components/auth/CliTokenGenerator";
 
 interface ProjectSummary {
   id: string;
@@ -37,6 +38,8 @@ export default async function Home() {
     <AuthGuard>
       <div className="flex flex-col flex-1 bg-background font-sans text-foreground">
         <SZNav top={false} NavPages={pages} />
+
+        {/* <CliTokenGenerator /> */}
 
         <div className="flex flex-col gap-4 p-4">
           <div className="flex flex-col">

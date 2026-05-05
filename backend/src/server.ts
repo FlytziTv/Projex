@@ -3,6 +3,7 @@ import cors from "cors";
 import { pool, testConnection } from "./db";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
 const app = express();
 
@@ -217,6 +218,51 @@ app.post(
     } catch (error) {
       console.error("Erreur lors de la connexion :", error);
       res.status(500).json({ error: "Erreur interne du serveur" });
+    }
+  },
+);
+
+// Générer un Token pour le CLI
+app.post(
+  "/api/auth/cli-token",
+  async (req: Request, res: Response): Promise<void> => {
+    // 1. On récupère le "badge" (JWT) envoyé par le frontend
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      res.status(401).json({ error: "Non autorisé. Connectez-vous d'abord." });
+      return;
+    }
+
+    const jwtToken = authHeader.split(" ")[1];
+
+    try {
+      // 2. On vérifie que le JWT est valide et on lit ce qu'il y a dedans
+      const decoded = jwt.verify(jwtToken, JWT_SECRET) as {
+        userId: number;
+        email: string;
+      };
+      const userId = decoded.userId;
+
+      // 3. On génère un token CLI ultra-sécurisé (qui commence par "px_" pour Projex)
+      const cliToken = "px_" + crypto.randomBytes(24).toString("hex");
+
+      // 4. On sauvegarde ce nouveau token dans la base de données
+      const insertQuery = `
+      INSERT INTO cli_tokens (user_id, token) 
+      VALUES ($1, $2) 
+      RETURNING token, created_at
+    `;
+      const result = await pool.query(insertQuery, [userId, cliToken]);
+
+      res.status(201).json({
+        message: "Token CLI généré avec succès",
+        cliToken: result.rows[0].token,
+      });
+    } catch (error) {
+      // Si le JWT est faux ou expiré, ça tombe ici
+      console.error("Erreur lors de la génération du token CLI :", error);
+      res.status(403).json({ error: "Session invalide ou expirée" });
     }
   },
 );
