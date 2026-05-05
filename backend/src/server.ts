@@ -332,6 +332,75 @@ app.get(
 );
 
 app.post(
+  "/api/cli/projects/:id/steps",
+  async (req: Request, res: Response): Promise<void> => {
+    const authHeader = req.headers.authorization;
+    const projectId = req.params.id;
+    const { title } = req.body;
+
+    // 1. Vérification des données envoyées
+    if (!title) {
+      res.status(400).json({ error: "Le titre de l'étape est obligatoire." });
+      return;
+    }
+
+    // 2. Vérification du token CLI
+    if (!authHeader || !authHeader.startsWith("Bearer px_")) {
+      res.status(401).json({ error: "Token CLI manquant ou format invalide." });
+      return;
+    }
+
+    const cliToken = authHeader.split(" ")[1];
+
+    try {
+      // 3. Authentification du token
+      const userResult = await pool.query(
+        "SELECT user_id FROM cli_tokens WHERE token_hash = $1",
+        [cliToken],
+      );
+
+      if (userResult.rows.length === 0) {
+        res.status(401).json({ error: "Token CLI non reconnu ou révoqué." });
+        return;
+      }
+
+      const userId = userResult.rows[0].user_id;
+
+      // 4. Vérifier que le projet appartient à l'utilisateur
+      const projectResult = await pool.query(
+        "SELECT id FROM projects WHERE id = $1 AND user_id = $2",
+        [projectId, userId],
+      );
+
+      if (projectResult.rows.length === 0) {
+        res.status(404).json({ error: "Projet introuvable ou accès refusé." });
+        return;
+      }
+
+      // 5. Trouver le numéro de la prochaine étape (le plus grand actuel + 1)
+      const maxNumberResult = await pool.query(
+        "SELECT COALESCE(MAX(number), 0) as max_number FROM steps WHERE project_id = $1",
+        [projectId],
+      );
+      const nextNumber = parseInt(maxNumberResult.rows[0].max_number) + 1;
+
+      // 6. Insérer la nouvelle étape en base de données
+      const insertResult = await pool.query(
+        `INSERT INTO steps (project_id, number, title, status)
+        VALUES ($1, $2, $3, 'todo')
+        RETURNING *`,
+        [projectId, nextNumber, title],
+      );
+
+      res.status(201).json({ step: insertResult.rows[0] });
+    } catch (error) {
+      console.error("Erreur lors de la création de l'étape CLI :", error);
+      res.status(500).json({ error: "Erreur interne du serveur." });
+    }
+  },
+);
+
+app.post(
   "/api/projects",
   async (req: Request, res: Response): Promise<void> => {
     const authHeader = req.headers.authorization;

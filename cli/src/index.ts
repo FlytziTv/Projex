@@ -215,4 +215,73 @@ program
     }
   });
 
+program
+  .command("step:add <title...>")
+  .description("Ajoute une nouvelle étape au projet actuel")
+  .action(async (titleArray) => {
+    try {
+      const title = titleArray.join(" ");
+
+      const LOCAL_CONFIG_PATH = path.join(process.cwd(), ".projex.json");
+      if (!fs.existsSync(LOCAL_CONFIG_PATH)) {
+        console.log(
+          chalk.yellow(
+            "Aucun projet lié dans ce dossier. Utilise 'projex init <id>' d'abord.",
+          ),
+        );
+        return;
+      }
+
+      const localConfig = JSON.parse(
+        fs.readFileSync(LOCAL_CONFIG_PATH, "utf-8"),
+      );
+      const projectId = localConfig.projectId;
+
+      if (!fs.existsSync(GLOBAL_CONFIG_PATH)) {
+        console.log(
+          chalk.yellow(
+            "Terminal non connecté. Utilise 'projex login <token>' d'abord.",
+          ),
+        );
+        return;
+      }
+
+      const globalConfig = JSON.parse(
+        fs.readFileSync(GLOBAL_CONFIG_PATH, "utf-8"),
+      );
+      const cliToken = globalConfig.cliToken;
+
+      console.log(chalk.gray(`Création de l'étape "${title}"...`));
+
+      const response = await fetch(
+        `http://localhost:3001/api/cli/projects/${projectId}/steps`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${cliToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ title }), // On envoie le titre dans le body
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error(chalk.red(`Erreur de l'API : ${data.error}`));
+        return;
+      }
+
+      console.log(chalk.green(`\nÉtape ajoutée avec succès !`));
+      console.log(`[STP-${data.step.number}] ${chalk.white(data.step.title)}`);
+      console.log(
+        chalk.gray(
+          `\nAstuce : Tape 'projex status' pour voir ta barre de progression.`,
+        ),
+      );
+    } catch (error) {
+      console.error(chalk.red("Erreur lors de l'ajout de l'étape :"), error);
+    }
+  });
+
 program.parse(process.argv);
