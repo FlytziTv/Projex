@@ -318,3 +318,43 @@ app.get(
     }
   },
 );
+
+app.post(
+  "/api/projects",
+  async (req: Request, res: Response): Promise<void> => {
+    const authHeader = req.headers.authorization;
+    const { name } = req.body;
+
+    if (!name || name.trim() === "") {
+      res.status(400).json({ error: "Le nom du projet est obligatoire." });
+      return;
+    }
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      res.status(401).json({ error: "Non autorisé." });
+      return;
+    }
+
+    const jwtToken = authHeader.split(" ")[1];
+
+    try {
+      // 1. On vérifie qui crée le projet via le JWT
+      const decoded = jwt.verify(jwtToken, JWT_SECRET) as { userId: number };
+      const userId = decoded.userId;
+
+      // 2. On insère le projet (il sera en statut 'active' par défaut)
+      // On génère un UUID automatiquement avec gen_random_uuid()
+      const query = `
+      INSERT INTO projects (user_id, name, status) 
+      VALUES ($1, $2, 'active') 
+      RETURNING *
+    `;
+      const result = await pool.query(query, [userId, name]);
+
+      res.status(201).json(result.rows[0]);
+    } catch (error) {
+      console.error("Erreur création projet :", error);
+      res.status(403).json({ error: "Session invalide." });
+    }
+  },
+);
