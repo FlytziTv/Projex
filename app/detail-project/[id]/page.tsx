@@ -1,12 +1,11 @@
 // app/detail-project/[id]/page.tsx
 import { notFound } from "next/navigation";
-import { SZNav } from "@/components/layout/NavBar";
-import { pages } from "@/lib/nav-config";
 import Link from "next/link";
 import { statusProjects } from "@/lib/status-project";
 import { KanbanColumn } from "@/components/kanban/KanbanColumn";
 import { ProjectDetail, StepStatus, Step } from "@/types/project";
 import { Ellipsis, FileCodeCorner, Plus, Terminal } from "lucide-react";
+import NavBar, { SidebarProvider } from "@/components/layout/NavBar";
 
 interface DetailProjectPageProps {
   params: Promise<{
@@ -62,10 +61,13 @@ export default async function DetailProjectPage({
   };
 
   return (
-    <div className="flex flex-col flex-1 bg-background font-sans text-foreground min-h-screen pb-12">
-      <SZNav top={false} NavPages={pages} />
-
-      <main className="flex flex-col gap-10 p-6 lg:p-10 max-w-[1400px] mx-auto w-full">
+    <div className="flex h-screen w-full overflow-hidden">
+      <SidebarProvider>
+        <div className="flex flex-col h-full p-2 shrink-0">
+          <NavBar />
+        </div>
+      </SidebarProvider>
+      <main className="flex-1 h-full overflow-y-auto p-4 py-6 gap-6 flex flex-col">
         {/* header */}
         <div className="flex flex-col gap-6">
           <Link
