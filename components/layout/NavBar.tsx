@@ -1,108 +1,119 @@
 "use client";
 
-import { CircleUserRound, LucideIcon } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import {
+  ChevronLeft,
+  CircleQuestionMark,
+  LayoutDashboard,
+  UserCircle,
+  BookOpen,
+} from "lucide-react";
+
+import { useSidebar, SidebarProvider } from "./NavBarContext";
 import { Logo } from "../icons/logo";
-import { cn } from "@/lib/utils";
 
-interface SZNavPagesProps {
-  top: boolean;
-  NavPages: NavPage[];
-}
+export default function NavBar() {
+  const { collapsed } = useSidebar();
 
-interface NavPage {
-  id: number;
-  name: string;
-  url: string;
-  icon: LucideIcon;
-}
-
-function SZNav({ top, NavPages }: SZNavPagesProps) {
   return (
-    <nav
-      className={`p-3 bg-[#0A0A0A] border border-[#242424] rounded-full w-fit z-900 fixed flex flex-row items-center justify-center gap-3 left-1/2 -translate-x-1/2 ${top ? "top-4" : "bottom-4"}`}
+    <div
+      data-slot="nav"
+      className={`group h-full bg-sidebar flex flex-col border border-sidebar-border rounded-lg text-foreground text-lg relative transition-all duration-500 ${
+        collapsed ? "w-12.5" : "w-60"
+      }`}
     >
-      <NavLogo />
-      <NavSeparator className="hidden sm:flex" />
-      <NavMenuContainer gap="4px">
-        {NavPages.map((item) => (
-          <NavItem key={item.id} Icon={item.icon} link={item.url} />
-        ))}
-      </NavMenuContainer>
-      <NavSeparator />
-      <UserAccount />
-    </nav>
+      <NavSize />
+      <SideBarHeader>
+        <ItemSidebar
+          Icon={Logo}
+          href="/dashboard"
+          label="Projex"
+          ClassName="font-semibold"
+        />
+      </SideBarHeader>
+
+      <SideBarContent>
+        <ItemSidebar Icon={LayoutDashboard} href="/" label="Dashboard" />
+        <ItemSidebar Icon={BookOpen} href="/docs" label="Docs" />
+      </SideBarContent>
+
+      <SideBarFooter>
+        <ItemSidebar
+          Icon={CircleQuestionMark}
+          href="/logs"
+          label="Aide & Support"
+          ClassName="text-muted-foreground text-xs"
+        />
+        <ItemSidebar
+          Icon={UserCircle}
+          href="/profile"
+          label="Profil"
+          ClassName="text-muted-foreground text-xs"
+        />
+      </SideBarFooter>
+    </div>
   );
 }
 
-function NavMenuContainer({
-  children,
-  gap,
-}: {
-  children: React.ReactNode;
-  gap: string;
-}) {
+function NavSize() {
+  const { toggle, collapsed } = useSidebar();
+
   return (
-    <div
-      data-slot="NavContainer"
-      className="hidden sm:flex flex-row items-center justify-center"
-      style={{ gap: gap }}
+    <button
+      data-slot="nav-button-size"
+      onClick={toggle}
+      className="absolute opacity-0 group-hover:opacity-100 bg-sidebar hover:bg-accent border border-sidebar-border rounded-full text-foreground/80 hover:text-foreground p-1 -right-3 top-1/2 -translate-y-1/2 transition-all duration-300"
     >
+      <ChevronLeft
+        size={16}
+        className={`transition-transform duration-300 ${collapsed ? "rotate-180" : ""}`}
+      />
+    </button>
+  );
+}
+
+function SideBarHeader({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col items-start p-2 pb-0 gap-1 w-full">
       {children}
     </div>
   );
 }
 
-function NavLogo() {
+function SideBarContent({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col p-2 gap-1 w-full h-full">{children}</div>
+  );
+}
+
+function SideBarFooter({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col items-end p-2 gap-1 w-full">{children}</div>
+  );
+}
+
+function ItemSidebar({
+  Icon,
+  href,
+  label,
+  ClassName,
+}: {
+  Icon: React.ElementType;
+  href: string;
+  label?: string;
+  ClassName?: string;
+}) {
+  const { collapsed } = useSidebar();
+
   return (
     <Link
-      data-slot="NavLogo"
-      href="/"
-      className="aspect-square h-7 flex items-center justify-center hover:opacity-60 transition-opacity duration-300 cursor-pointer"
+      href={href}
+      className={`group flex items-center text-sm gap-2 p-2 w-full rounded-lg hover:bg-sidebar-accent group-hover:transition-all group-hover:duration-500 ${ClassName || "hover:text-foreground"}`}
     >
-      <Logo size={16} />
+      <Icon size={16} className="shrink-0" />
+      {!collapsed && label && <span className="truncate">{label}</span>}
     </Link>
   );
 }
 
-function NavSeparator({ className }: { className?: string }) {
-  return (
-    <div
-      data-slot="NavSeparator"
-      className={cn(`w-px h-5 bg-[#2D2D2D] rounded-2xl`, className)}
-    />
-  );
-}
-
-function NavItem({ Icon, link }: { Icon: LucideIcon; link: string }) {
-  const pathname = usePathname();
-
-  return (
-    <Link
-      data-slot="NavItem"
-      href={link}
-      className={`aspect-square h-7 flex items-center justify-center transition-colors duration-300 cursor-pointer ${
-        pathname === link
-          ? "text-[#eeeef0]"
-          : "text-[#A1A1A1] hover:text-[#eeeef0]"
-      }`}
-    >
-      <Icon size={16} />
-    </Link>
-  );
-}
-
-function UserAccount() {
-  return (
-    <Link
-      data-slot="UserAccount"
-      href="/"
-      className="aspect-square h-7 flex items-center justify-center hover:opacity-60 transition-opacity duration-300 cursor-pointer"
-    >
-      <CircleUserRound size={16} />
-    </Link>
-  );
-}
-
-export { SZNav, NavLogo, NavSeparator, NavItem, UserAccount };
+export { SidebarProvider };
