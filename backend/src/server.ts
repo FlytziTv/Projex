@@ -323,7 +323,7 @@ app.post(
   "/api/projects",
   async (req: Request, res: Response): Promise<void> => {
     const authHeader = req.headers.authorization;
-    const { name } = req.body;
+    const { name, description } = req.body;
 
     if (!name || name.trim() === "") {
       res.status(400).json({ error: "Le nom du projet est obligatoire." });
@@ -345,11 +345,11 @@ app.post(
       // 2. On insère le projet (il sera en statut 'active' par défaut)
       // On génère un UUID automatiquement avec gen_random_uuid()
       const query = `
-      INSERT INTO projects (user_id, name, status) 
-      VALUES ($1, $2, 'active') 
+      INSERT INTO projects (user_id, name, description, status) 
+      VALUES ($1, $2, $3, 'active') 
       RETURNING *
     `;
-      const result = await pool.query(query, [userId, name]);
+      const result = await pool.query(query, [userId, name, description]);
 
       res.status(201).json(result.rows[0]);
     } catch (error) {
