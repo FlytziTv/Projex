@@ -12,37 +12,36 @@ app.use(express.json()); // Permet de lire le body des requêtes en JSON
 
 app.get("/api/projects", async (req: Request, res: Response) => {
   try {
-    const query = `
+    const result = await pool.query(`
       SELECT 
         p.id, 
         p.name, 
         p.description, 
         p.status,
-        COUNT(s.id) FILTER (WHERE s.status IN ('done', 'skipped'))::int AS completed_steps,
-        COUNT(s.id) FILTER (WHERE s.status IN ('todo', 'in_progress'))::int AS uncompleted_steps
+        COALESCE(SUM(CASE WHEN s.status = 'done' THEN 1 ELSE 0 END), 0) AS completed_count,
+        COALESCE(SUM(CASE WHEN s.status IN ('todo', 'in_progress') THEN 1 ELSE 0 END), 0) AS uncompleted_count
       FROM projects p
       LEFT JOIN steps s ON p.id = s.project_id
       GROUP BY p.id
-      ORDER BY p.created_at DESC;
-    `;
+      ORDER BY p.created_at DESC
+    `);
 
-    const result = await pool.query(query);
-
+    // On formate les données exactement comme le Frontend l'attend
     const formattedProjects = result.rows.map((row) => ({
       id: row.id,
       name: row.name,
       description: row.description,
       status: row.status,
       tasks: {
-        completed: row.completed_steps || 0,
-        uncompleted: row.uncompleted_steps || 0,
+        completed: parseInt(row.completed_count, 10), // parseInt car PostgreSQL renvoie souvent un string pour les SUM/COUNT
+        uncompleted: parseInt(row.uncompleted_count, 10),
       },
     }));
 
     res.json(formattedProjects);
   } catch (error) {
     console.error("Erreur lors de la récupération des projets :", error);
-    res.status(500).json({ error: "Erreur interne du serveur" });
+    res.status(500).json({ error: "Erreur interne du serveur." });
   }
 });
 
