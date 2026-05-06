@@ -14,6 +14,10 @@ export default function ProfilePage() {
   const [userid] = useState("1234567890abcdefake");
   const [userIdCopied, setUserIdCopied] = useState(false);
 
+  const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [userPassword, setUserPassword] = useState("");
+
   // 1. La seule fonction de récupération nécessaire
   const fetchTokens = async () => {
     try {
@@ -64,6 +68,35 @@ export default function ProfilePage() {
       }
     } catch (err) {
       console.error("Erreur suppression:", err);
+    }
+  };
+
+  const handleUpdateProfile = async (field: "name" | "email" | "password") => {
+    const value =
+      field === "name"
+        ? userName
+        : field === "email"
+          ? userEmail
+          : userPassword;
+    if (!value) return;
+
+    try {
+      const jwtToken = localStorage.getItem("projex_token")?.replace(/"/g, "");
+      const response = await fetch("http://localhost:3001/api/user/update", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${jwtToken}`,
+        },
+        body: JSON.stringify({ [field]: value }),
+      });
+
+      if (response.ok) {
+        alert(`${field} mis à jour avec succès !`);
+        if (field === "password") setUserPassword(""); // Reset password field
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -159,12 +192,13 @@ export default function ProfilePage() {
                   message="Please use 32 characters at maximum."
                   className="col-span-2"
                   button="save"
+                  onclick={() => handleUpdateProfile("name")}
                 >
                   <InputGroupInput
                     type="text"
                     placeholder="Enter your new name"
-                    // value={}
-                    // onChange={() => {}}
+                    value={userName}
+                    onChange={(e) => setUserName(e.target.value)}
                     minLength={2}
                     maxLength={32}
                     className="rounded-sm"
@@ -175,12 +209,13 @@ export default function ProfilePage() {
                   description="Please enter your new email address."
                   message="Please use a valid email address."
                   button="save"
+                  onclick={() => handleUpdateProfile("email")}
                 >
                   <InputGroupInput
                     type="email"
                     placeholder="Enter your new email address"
-                    // value={}
-                    // onChange={() => {}}
+                    value={userEmail}
+                    onChange={(e) => setUserEmail(e.target.value)}
                     minLength={2}
                     maxLength={32}
                     className="rounded-sm"
@@ -191,12 +226,13 @@ export default function ProfilePage() {
                   description="Please enter your new password."
                   message="Please use 8-128 characters, and a password secure enough."
                   button="save"
+                  onclick={() => handleUpdateProfile("password")}
                 >
                   <InputGroupInput
                     type="password"
                     placeholder="Enter your new password"
-                    // value={}
-                    // onChange={() => {}}
+                    value={userPassword}
+                    onChange={(e) => setUserPassword(e.target.value)}
                     minLength={8}
                     maxLength={128}
                     className="rounded-sm"

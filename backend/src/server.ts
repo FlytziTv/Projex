@@ -699,3 +699,48 @@ app.delete("/api/auth/cli-token/:id", async (req: Request, res: Response) => {
     res.status(500).json({ error: "Erreur serveur" });
   }
 });
+
+app.patch("/api/user/update", async (req: Request, res: Response) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: "Non autorisé" });
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET as string,
+    ) as UserPayload;
+    const userId = decoded.userId;
+
+    const { name, email, password } = req.body;
+    let query = "UPDATE users SET ";
+    const params: (string | number)[] = [];
+    const updates: string[] = [];
+
+    if (name) {
+      params.push(name);
+      updates.push(`name = $${params.length}`);
+    }
+    if (email) {
+      params.push(email);
+      updates.push(`email = $${params.length}`);
+    }
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      params.push(hashedPassword);
+      updates.push(`password = $${params.length}`);
+    }
+
+    if (updates.length === 0)
+      return res.status(400).json({ error: "Rien à modifier" });
+
+    params.push(userId.toString());
+    query += updates.join(", ") + ` WHERE id = $${params.length}`;
+
+    await pool.query(query, params);
+    res.json({ message: "Profil mis à jour" });
+  } catch (error) {
+    console.error("Update profile error:", error); // Utilise la variable ici
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
