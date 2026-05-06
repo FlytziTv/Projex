@@ -35,6 +35,25 @@ const faqItems = [
   },
 ];
 
+const cliCommands = [
+  {
+    cmd: "projex status",
+    desc: "Show project progress and all tasks",
+  },
+  {
+    cmd: 'projex step:add "task title"',
+    desc: "Add new task (starts in Todo)",
+  },
+  {
+    cmd: "projex step:start <number>",
+    desc: "Move task to In Progress",
+  },
+  {
+    cmd: "projex step:done <number>",
+    desc: "Mark task as Done (progress advances)",
+  },
+];
+
 export default function DocsPage() {
   return (
     <div className="flex h-screen w-full overflow-hidden">
@@ -133,24 +152,7 @@ export default function DocsPage() {
             <h2 className="text-lg font-semibold">CLI Commands</h2>
 
             <div className="space-y-2">
-              {[
-                {
-                  cmd: "projex status",
-                  desc: "Show project progress and all tasks",
-                },
-                {
-                  cmd: 'projex step:add "task title"',
-                  desc: "Add new task (starts in Todo)",
-                },
-                {
-                  cmd: "projex step:start <number>",
-                  desc: "Move task to In Progress",
-                },
-                {
-                  cmd: "projex step:done <number>",
-                  desc: "Mark task as Done (progress advances)",
-                },
-              ].map((item, i) => (
+              {cliCommands.map((item, i) => (
                 <BlockCommand
                   key={i}
                   command={item.cmd}
