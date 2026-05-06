@@ -579,7 +579,7 @@ app.patch(
     const authHeader = req.headers.authorization as string | undefined;
     const projectId = req.params.id as string;
     const stepNumber = parseInt(req.params.number as string);
-    const { title, note } = req.body;
+    const { title, note, status } = req.body;
 
     // 1. Vérification du JWT (Interface Web)
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -607,13 +607,14 @@ app.patch(
 
       // 4. Mettre à jour l'étape dans la base de données
       const updateResult = await pool.query(
-        `UPDATE steps 
-        SET 
-        title = COALESCE($1, title), 
-        note = COALESCE($2, note)
-        WHERE project_id = $3 AND number = $4 
-         RETURNING *`,
-        [title, note, projectId, stepNumber],
+        `UPDATE steps
+        SET
+        title = COALESCE($1, title),
+        note = COALESCE($2, note),
+        status = COALESCE($3, status)
+        WHERE project_id = $4 AND number = $5
+        RETURNING *`,
+        [title, note, status, projectId, stepNumber],
       );
 
       if (updateResult.rows.length === 0) {

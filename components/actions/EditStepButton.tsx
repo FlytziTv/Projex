@@ -20,30 +20,52 @@ export function EditStepForm({ step, onStepUpdated }: EditStepModalProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(step.title);
   const [note, setNote] = useState(step.note || "");
+  const [status, setStatus] = useState(step.status);
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setIsSaving(true);
     try {
+      // 1. On récupère le token JWT (généralement stocké dans le localStorage à la connexion)
+      const token = localStorage.getItem("projex_token");
+
+      if (!token) {
+        alert(
+          "Erreur: Token introuvable. Essaie de te déconnecter / reconnecter.",
+        );
+        setIsSaving(false);
+        return;
+      }
+
+      // 2. On tape bien sur le port 3001
       const response = await fetch(
-        `/api/projects/${step.project_id}/steps/${step.number}`,
+        `http://localhost:3001/api/projects/${step.project_id}/steps/${step.number}`,
         {
           method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title: title, note: note }),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // On donne la clé d'accès au serveur !
+          },
+          body: JSON.stringify({
+            title: title,
+            description: note,
+            status: status,
+          }),
         },
       );
 
       if (response.ok) {
-        setIsEditing(false); // On quitte le mode édition
-        onStepUpdated(); // On dit au parent de recharger les données
+        setIsEditing(false);
+        onStepUpdated();
       } else {
-        console.error("Erreur lors de la sauvegarde");
+        // 3. On capture la VRAIE erreur envoyée par le serveur !
+        const errorData = await response.json();
+        console.error("Erreur renvoyée par le backend :", errorData);
+        alert(`Erreur : ${errorData.error}`); // Petit popup pour toi
       }
     } catch (error) {
-      console.error("Erreur réseau :", error);
+      console.error("Erreur réseau (serveur éteint ou CORS) :", error);
     } finally {
       setIsSaving(false);
     }
@@ -89,6 +111,36 @@ export function EditStepForm({ step, onStepUpdated }: EditStepModalProps) {
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="Note about the step..."
               />
+            </InputGroup>
+
+            <InputGroup>
+              <InputGroupLabel>Status</InputGroupLabel>
+              <select
+                value={status}
+                onChange={(e) =>
+                  setStatus(
+                    e.target.value as
+                      | "todo"
+                      | "in_progress"
+                      | "done"
+                      | "skipped",
+                  )
+                }
+                className="h-9 w-full min-w-0 rounded-md border border-input bg-transparent px-2.5 py-1 text-base transition-colors outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40"
+              >
+                <option className="text-background" value="todo">
+                  À faire (Todo)
+                </option>
+                <option className="text-background" value="in_progress">
+                  En cours (In Progress)
+                </option>
+                <option className="text-background" value="done">
+                  Terminé (Done)
+                </option>
+                <option className="text-background" value="skipped">
+                  Ignoré (Ignored)
+                </option>
+              </select>
             </InputGroup>
 
             <div className="grid grid-cols-2 gap-4">
