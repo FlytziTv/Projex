@@ -502,3 +502,74 @@ app.post(
     }
   },
 );
+
+app.patch(
+  "/api/cli/projects/:id/steps/:number",
+  async (req: Request, res: Response): Promise<void> => {
+    const authHeader = req.headers.authorization as string | undefined;
+    const projectId = req.params.id as string;
+    const stepNumber = parseInt(req.params.number as string);
+    const status = req.body.status as string;
+
+    // 1. Vérification des données (on s'assure que c'est un bon statut)
+    const validStatuses = ["todo", "in_progress", "done", "ignored"];
+    if (!status || !validStatuses.includes(status)) {
+      res.status(400).json({ error: "Statut invalide ou manquant." });
+      return;
+    }
+
+    // 2. Vérification du token CLI
+    if (!authHeader || !authHeader.startsWith("Bearer px_")) {
+      res.status(401).json({ error: "Token CLI manquant ou format invalide." });
+      return;
+    }
+
+    const cliToken = authHeader.split(" ")[1];
+
+    try {
+      // 3. Authentification
+      const userResult = await pool.query(
+        "SELECT user_id FROM cli_tokens WHERE token_hash = $1",
+        [cliToken],
+      );
+
+      if (userResult.rows.length === 0) {
+        res.status(401).json({ error: "Token CLI non reconnu ou révoqué." });
+        return;
+      }
+
+      const userId = userResult.rows[0].user_id;
+
+      // 4. Vérifier que le projet appartient bien à l'utilisateur
+      const projectResult = await pool.query(
+        "SELECT id FROM projects WHERE id = $1 AND user_id = $2",
+        [projectId, userId],
+      );
+
+      if (projectResult.rows.length === 0) {
+        res.status(404).json({ error: "Projet introuvable ou accès refusé." });
+        return;
+      }
+
+      // 5. Mettre à jour l'étape
+      const updateResult = await pool.query(
+        `UPDATE steps 
+        SET status = $1 
+        WHERE project_id = $2 AND number = $3 
+        RETURNING *`,
+        [status, projectId, stepNumber],
+      );
+
+      if (updateResult.rows.length === 0) {
+        res.status(404).json({ error: "Étape introuvable pour ce projet." });
+        return;
+      }
+
+      // 6. Renvoyer l'étape modifiée
+      res.json({ step: updateResult.rows[0] });
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour de l'étape CLI :", error);
+      res.status(500).json({ error: "Erreur interne du serveur." });
+    }
+  },
+);

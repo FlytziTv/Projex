@@ -284,4 +284,84 @@ program
     }
   });
 
+async function updateStepStatus(number: string, status: string) {
+  try {
+    const LOCAL_CONFIG_PATH = path.join(process.cwd(), ".projex.json");
+    if (!fs.existsSync(LOCAL_CONFIG_PATH)) {
+      console.log(
+        chalk.yellow(
+          "Aucun projet lié dans ce dossier. Utilise 'projex init <id>' d'abord.",
+        ),
+      );
+      return;
+    }
+
+    const localConfig = JSON.parse(fs.readFileSync(LOCAL_CONFIG_PATH, "utf-8"));
+    const projectId = localConfig.projectId;
+
+    if (!fs.existsSync(GLOBAL_CONFIG_PATH)) {
+      console.log(
+        chalk.yellow(
+          "Terminal non connecté. Utilise 'projex login <token>' d'abord.",
+        ),
+      );
+      return;
+    }
+
+    const globalConfig = JSON.parse(
+      fs.readFileSync(GLOBAL_CONFIG_PATH, "utf-8"),
+    );
+    const cliToken = globalConfig.cliToken;
+
+    console.log(chalk.gray(`Mise à jour de l'étape STP-${number}...`));
+
+    // On appelle la route PATCH de l'API
+    const response = await fetch(
+      `http://localhost:3001/api/cli/projects/${projectId}/steps/${number}`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${cliToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status }),
+      },
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error(chalk.red(`Erreur de l'API : ${data.error}`));
+      return;
+    }
+
+    const statusText =
+      status === "done"
+        ? chalk.green("Terminée")
+        : chalk.blueBright(" En cours");
+    console.log(`\nÉtape STP-${number} passée en statut : ${statusText}`);
+  } catch (error) {
+    console.error(
+      chalk.red("Erreur lors de la mise à jour de l'étape :"),
+      error,
+    );
+  }
+}
+
+// ------------------------------------------------------------------
+// COMMANDE: projex step:start <number>
+// ------------------------------------------------------------------
+program
+  .command("step:start <number>")
+  .description("Passe une étape en statut 'en cours' (in_progress)")
+  .action((number) => updateStepStatus(number, "in_progress"));
+
+// ------------------------------------------------------------------
+// COMMANDE: projex step:done <number>
+// ------------------------------------------------------------------
+program
+  .command("step:done <number>")
+  .description("Marque une étape comme terminée (done)")
+  .action((number) => updateStepStatus(number, "done"));
+
 program.parse(process.argv);
