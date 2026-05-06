@@ -48,15 +48,15 @@ The system operates on a simple synchronization model:
 
 ### Tech Stack
 
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| Frontend | Next.js 16, React 19, TypeScript | Web dashboard UI |
-| Styling | Tailwind CSS v4 | Component styling |
-| Backend | Express.js, TypeScript | REST API endpoints |
-| Authentication | JWT (Bearer tokens) | CLI and web auth |
-| Database | PostgreSQL, vanilla SQL | Data persistence |
-| CLI | Node.js, Commander.js | Terminal commands |
-| Package Manager | npm workspaces | Monorepo management |
+| Layer           | Technology                       | Purpose             |
+| --------------- | -------------------------------- | ------------------- |
+| Frontend        | Next.js 16, React 19, TypeScript | Web dashboard UI    |
+| Styling         | Tailwind CSS v4                  | Component styling   |
+| Backend         | Express.js, TypeScript           | REST API endpoints  |
+| Authentication  | JWT (Bearer tokens)              | CLI and web auth    |
+| Database        | PostgreSQL, vanilla SQL          | Data persistence    |
+| CLI             | Node.js, Commander.js            | Terminal commands   |
+| Package Manager | npm workspaces                   | Monorepo management |
 
 ---
 
@@ -65,6 +65,7 @@ The system operates on a simple synchronization model:
 ### Installation (Development)
 
 #### Prerequisites
+
 - Node.js 18+
 - npm 9+
 - PostgreSQL 14+
@@ -93,6 +94,7 @@ npm run dev
 #### Environment Variables
 
 **Backend** (`apps/api/.env`)
+
 ```env
 DATABASE_URL=postgresql://postgres:password@localhost:5432/projex
 JWT_SECRET=your_secret_key_here
@@ -100,6 +102,7 @@ PORT=3001
 ```
 
 **Frontend** (`apps/web/.env`)
+
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:3001/api
 ```
@@ -107,6 +110,7 @@ NEXT_PUBLIC_API_URL=http://localhost:3001/api
 #### Verification
 
 After setup, verify all services are running:
+
 - **Web Dashboard**: http://localhost:3000
 - **API Server**: http://localhost:3001/api
 - **CLI**: Available as `projex` command after global install
@@ -136,6 +140,7 @@ Progress % = (Completed Steps / Total Steps) × 100
 Where **Completed Steps** includes both `done` and `skipped` statuses.
 
 Example:
+
 - Total steps: 10
 - Completed (done + skipped): 7
 - Progress: 70%
@@ -170,6 +175,7 @@ The Kanban board consists of four columns:
 #### Step Management
 
 Each step card displays:
+
 - **Step Number**: Unique identifier (STP-1, STP-2, etc.)
 - **Title**: Brief description of the task
 - **Edit Button**: Pen icon (✎) to modify the step
@@ -201,12 +207,12 @@ At the top of each project view:
 
 Located in the top-right corner of project view:
 
-| Action | Icon | Purpose |
-|--------|------|---------|
-| Add Step | + | Create new task in project |
-| Copy ID | 📋 | Copy project ID to clipboard |
-| Documentation | 📖 | Open help documentation |
-| More | ⋯ | Additional project options |
+| Action        | Icon | Purpose                      |
+| ------------- | ---- | ---------------------------- |
+| Add Step      | +    | Create new task in project   |
+| Copy ID       | 📋   | Copy project ID to clipboard |
+| Documentation | 📖   | Open help documentation      |
+| More          | ⋯    | Additional project options   |
 
 ---
 
@@ -225,6 +231,7 @@ projex login <your_cli_token>
 ```
 
 This creates `~/.projex.json` with:
+
 ```json
 {
   "cliToken": "your_token_here"
@@ -240,6 +247,7 @@ projex init <project_id>
 ```
 
 This creates `.projex.json` locally:
+
 ```json
 {
   "projectId": "123e4567-e89b-12d3-a456-426614174000"
@@ -259,6 +267,7 @@ projex hello
 ```
 
 **Output**:
+
 ```
 Salut Alexis ! Le CLI Projex est prêt à l'action.
 ```
@@ -272,6 +281,7 @@ projex status
 ```
 
 **Output**:
+
 ```
 === STATUT DU PROJET ===
 Nom: Mon Projet
@@ -289,12 +299,14 @@ Progression 70% (7/10)
 ```
 
 **Status Icons**:
+
 - ✅ Done/Completed
 - 🚀 In Progress/Active
 - ⏳ Todo/Pending
 - ❌ Skipped/Ignored
 
 **Requirements**:
+
 - Must run in a directory with `.projex.json`
 - Global config (from `projex login`) must exist
 
@@ -308,6 +320,7 @@ projex step:add "Write unit tests for API"
 ```
 
 **Output**:
+
 ```
 Création de l'étape "Implement user authentication"...
 
@@ -318,6 +331,7 @@ Astuce : Tape 'projex status' pour voir ta barre de progression.
 ```
 
 **Notes**:
+
 - Multi-word titles must be quoted
 - New steps always start in `todo` status
 - Appears immediately in web dashboard
@@ -333,6 +347,7 @@ projex step:start 5
 ```
 
 **Output**:
+
 ```
 Mise à jour de l'étape STP-3...
 
@@ -350,6 +365,7 @@ projex step:done 3
 ```
 
 **Output**:
+
 ```
 Mise à jour de l'étape STP-3...
 
@@ -357,6 +373,7 @@ Mise à jour de l'étape STP-3...
 ```
 
 **Effect**:
+
 - Step moves to "Terminé" column in Kanban
 - Counts toward project progress percentage
 - Progress bar updates on web dashboard
@@ -401,7 +418,7 @@ Stores project binding (created by `projex init`):
 
 1. Open web dashboard (http://localhost:3000)
 2. Navigate to **Settings** → **Profile**
-3. Click **"Generate CLI Token"** (px_...)
+3. Click **"Generate CLI Token"** (px\_...)
 4. Copy the token (appears only once)
 5. Run `projex login <token>` in terminal
 
@@ -424,6 +441,7 @@ curl -H "Authorization: Bearer $CLI_TOKEN" \
 ```
 
 **Headers**:
+
 ```
 Authorization: Bearer eyJhbGci...
 Content-Type: application/json
@@ -441,6 +459,7 @@ Content-Type: application/json
 ### Data Validation
 
 All API requests are validated:
+
 - **UUID validation**: Project IDs must be valid UUIDs
 - **JWT verification**: All tokens are verified server-side
 - **Step validation**: Step numbers must exist in project
@@ -457,6 +476,7 @@ All API requests are validated:
 **Problem**: CLI can't find `.projex.json` in current directory
 
 **Solution**:
+
 ```bash
 # Navigate to project root
 cd /path/to/your/project
@@ -470,6 +490,7 @@ projex init 123e4567-e89b-12d3-a456-426614174000
 **Problem**: Global config missing or token expired
 
 **Solution**:
+
 ```bash
 # Generate new token from dashboard settings
 # Then login
@@ -477,6 +498,7 @@ projex login px_your_new_token_here
 ```
 
 **Verify**: Check if `~/.projex.json` exists
+
 ```bash
 cat ~/.projex.json
 ```
@@ -486,6 +508,7 @@ cat ~/.projex.json
 **Problem**: Token format is invalid or corrupted
 
 **Solution**:
+
 1. Go to web dashboard → Settings
 2. Delete the old CLI token
 3. Generate a new one
@@ -496,6 +519,7 @@ cat ~/.projex.json
 **Problem**: Backend encountered an error
 
 **Debugging**:
+
 1. Check API logs: `npm run dev:api`
 2. Verify database connection: `psql $DATABASE_URL`
 3. Ensure JWT_SECRET is set correctly
@@ -506,6 +530,7 @@ cat ~/.projex.json
 **Problem**: Another process is using the dev ports
 
 **Solution - Option A**: Kill the process
+
 ```bash
 # macOS/Linux
 lsof -i :3000
@@ -516,6 +541,7 @@ kill -9 <PID>
 ```
 
 **Solution - Option B**: Use different ports
+
 ```bash
 # Frontend on 3002
 PORT=3002 npm run dev:web
@@ -529,6 +555,7 @@ PORT=3003 npm run dev:api
 **Problem**: Projects not loading from API
 
 **Debugging**:
+
 1. Check API is running: `curl http://localhost:3001/api/projects`
 2. Verify database has projects: `psql -d projex -c "SELECT * FROM projects;"`
 3. Check CORS configuration in Express
@@ -539,11 +566,13 @@ PORT=3003 npm run dev:api
 **Problem**: CORS or network connectivity issue
 
 **Check**:
+
 1. Verify API URL: `echo $NEXT_PUBLIC_API_URL`
 2. Test API directly: `curl http://localhost:3001/api/health`
 3. Check firewall/network: `telnet localhost 3001`
 
 **Fix**: Restart both services
+
 ```bash
 npm run dev  # Restarts all services
 ```
@@ -553,11 +582,13 @@ npm run dev  # Restarts all services
 **Problem**: `projex` command not recognized
 
 **Solution - Install Globally**:
+
 ```bash
 npm install -g ./cli
 ```
 
 **Verify**:
+
 ```bash
 which projex
 projex hello
@@ -581,11 +612,13 @@ DEBUG=* projex status
 ### Database Connection Issues
 
 **Test Connection**:
+
 ```bash
 psql $DATABASE_URL -c "SELECT 1"
 ```
 
 **Reset Database** (careful!):
+
 ```bash
 psql -U postgres -d projex -c "DROP SCHEMA public CASCADE;"
 psql -U postgres -f apps/api/sql/schema.sql
@@ -594,11 +627,13 @@ psql -U postgres -f apps/api/sql/schema.sql
 ### Performance Issues
 
 **Slow Dashboard Loading**:
+
 1. Check network tab in DevTools (F12)
 2. Monitor API response times: `curl -w "%{time_total}\n" http://localhost:3001/api/projects`
 3. Query slow logs: Check PostgreSQL logs for slow queries
 
 **Slow CLI Commands**:
+
 1. Network latency: `ping localhost`
 2. API responsiveness: `curl http://localhost:3001/api/health`
 3. Database query performance: Verify indexes are created
@@ -612,6 +647,7 @@ psql -U postgres -f apps/api/sql/schema.sql
 **Definition**: Top-level organizational unit grouping related tasks
 
 **Properties**:
+
 - `id`: Unique UUID identifier
 - `name`: Display name
 - `description`: Project overview
@@ -619,13 +655,16 @@ psql -U postgres -f apps/api/sql/schema.sql
 - `steps`: Array of associated tasks
 
 **Example**:
+
 ```json
 {
   "id": "123e4567-e89b-12d3-a456-426614174000",
   "name": "Build E-Commerce Platform",
   "description": "Complete online store with payments",
   "status": "active",
-  "steps": [ /* array of steps */ ]
+  "steps": [
+    /* array of steps */
+  ]
 }
 ```
 
@@ -634,6 +673,7 @@ psql -U postgres -f apps/api/sql/schema.sql
 **Definition**: Individual work items within a project
 
 **Properties**:
+
 - `number`: Sequential identifier (STP-1, STP-2...)
 - `title`: Task description
 - `status`: Current progress state
@@ -643,22 +683,22 @@ psql -U postgres -f apps/api/sql/schema.sql
 
 #### Project Statuses
 
-| Status | Icon | Meaning | Behavior |
-|--------|------|---------|----------|
-| **active** | 🟢 | Actively being worked on | Default state for new projects |
-| **paused** | 🟡 | Temporarily halted | No immediate work, may resume |
-| **completed** | 🟢 | Finished successfully | Archive state, historical record |
-| **abandoned** | 🔴 | No longer pursued | Explicitly cancelled |
-| **future** | 🔵 | Planned but not started | Backlog item |
+| Status        | Icon | Meaning                  | Behavior                         |
+| ------------- | ---- | ------------------------ | -------------------------------- |
+| **active**    | 🟢   | Actively being worked on | Default state for new projects   |
+| **paused**    | 🟡   | Temporarily halted       | No immediate work, may resume    |
+| **completed** | 🟢   | Finished successfully    | Archive state, historical record |
+| **abandoned** | 🔴   | No longer pursued        | Explicitly cancelled             |
+| **future**    | 🔵   | Planned but not started  | Backlog item                     |
 
 #### Step Statuses
 
-| Status | Display Name | Icon | Progress Count | Use Case |
-|--------|--------------|------|------------------|----------|
-| **todo** | À faire | ⏳ | No | New tasks, backlog items |
-| **in_progress** | En cours | 🚀 | No | Currently being worked on |
-| **done** | Terminé | ✅ | Yes | Completed successfully |
-| **skipped** | Ignoré | ❌ | Yes | Decided not to implement |
+| Status          | Display Name | Icon | Progress Count | Use Case                  |
+| --------------- | ------------ | ---- | -------------- | ------------------------- |
+| **todo**        | À faire      | ⏳   | No             | New tasks, backlog items  |
+| **in_progress** | En cours     | 🚀   | No             | Currently being worked on |
+| **done**        | Terminé      | ✅   | Yes            | Completed successfully    |
+| **skipped**     | Ignoré       | ❌   | Yes            | Decided not to implement  |
 
 **Note**: Only `done` and `skipped` contribute to project progress percentage.
 
@@ -673,6 +713,7 @@ psql -U postgres -f apps/api/sql/schema.sql
 **Security**: Should be treated like passwords — never commit or share
 
 **Usage**:
+
 ```bash
 projex login px_abcdef1234567890abcdef1234567890
 ```
@@ -686,6 +727,7 @@ Stores project-specific binding to project ID.
 **Created by**: `projex init <id>`
 
 **Contains**:
+
 ```json
 {
   "projectId": "uuid-here"
@@ -703,6 +745,7 @@ Stores CLI authentication token.
 **Created by**: `projex login <token>`
 
 **Contains**:
+
 ```json
 {
   "cliToken": "px_token_here"
@@ -733,6 +776,7 @@ Stores CLI authentication token.
 **Definition**: Process by which changes on CLI instantly appear on dashboard and vice versa
 
 **Mechanism**:
+
 1. CLI sends request to API
 2. API updates database
 3. Dashboard fetches fresh data on next render
@@ -749,6 +793,7 @@ Stores CLI authentication token.
 ### Workflow Optimization
 
 **Terminal-First Workflow**:
+
 ```bash
 # 1. Create project on dashboard
 # 2. Note the project ID (copy with button)
@@ -765,12 +810,14 @@ projex step:start 1
 ```
 
 **Quick Status Check**:
+
 ```bash
 alias pxs="projex status"
 pxs  # Quick overview
 ```
 
 **Batch Adding Steps**:
+
 ```bash
 # Create multiple steps
 projex step:add "Setup ESLint"
@@ -782,6 +829,7 @@ projex step:add "Deploy to staging"
 ### Dashboard Bookmarking
 
 Bookmark project detail pages for quick access:
+
 - Dashboard: `http://localhost:3000`
 - Project Detail: `http://localhost:3000/detail-project/[id]`
 
