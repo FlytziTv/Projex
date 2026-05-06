@@ -4,13 +4,7 @@ import Link from "next/link";
 import { statusProjects } from "@/lib/status-project";
 import { KanbanColumn } from "@/components/kanban/KanbanColumn";
 import { ProjectDetail, StepStatus, Step } from "@/types/project";
-import {
-  ArrowLeft,
-  Ellipsis,
-  FileCodeCorner,
-  Plus,
-  Terminal,
-} from "lucide-react";
+import { ArrowLeft, Ellipsis } from "lucide-react";
 import NavBar, { SidebarProvider } from "@/components/layout/NavBar";
 import { CopyIdButton } from "@/components/actions/CopyIdButton";
 import DocsButton from "@/components/actions/DocsButton";

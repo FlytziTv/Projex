@@ -572,3 +572,63 @@ app.patch(
     }
   },
 );
+
+app.patch(
+  "/api/projects/:id/steps/:number",
+  async (req: Request, res: Response): Promise<void> => {
+    const authHeader = req.headers.authorization as string | undefined;
+    const projectId = req.params.id as string;
+    const stepNumber = parseInt(req.params.number as string);
+    const { title, note } = req.body;
+
+    // 1. Vérification du JWT (Interface Web)
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      res.status(401).json({ error: "Non autorisé." });
+      return;
+    }
+
+    const jwtToken = authHeader.split(" ")[1];
+
+    try {
+      // 2. Décodage du JWT
+      const decoded = jwt.verify(jwtToken, JWT_SECRET) as { userId: number };
+      const userId = decoded.userId;
+
+      // 3. Vérifier que le projet appartient bien à l'utilisateur
+      const projectResult = await pool.query(
+        "SELECT id FROM projects WHERE id = $1 AND user_id = $2",
+        [projectId, userId],
+      );
+
+      if (projectResult.rows.length === 0) {
+        res.status(404).json({ error: "Projet introuvable ou accès refusé." });
+        return;
+      }
+
+      // 4. Mettre à jour l'étape dans la base de données
+      const updateResult = await pool.query(
+        `UPDATE steps 
+        SET 
+        title = COALESCE($1, title), 
+        note = COALESCE($2, note)
+        WHERE project_id = $3 AND number = $4 
+         RETURNING *`,
+        [title, note, projectId, stepNumber],
+      );
+
+      if (updateResult.rows.length === 0) {
+        res.status(404).json({ error: "Étape introuvable pour ce projet." });
+        return;
+      }
+
+      // 5. Renvoyer l'étape modifiée
+      res.json({ step: updateResult.rows[0] });
+    } catch (error) {
+      console.error(
+        "Erreur lors de la mise à jour de l'étape depuis le web :",
+        error,
+      );
+      res.status(500).json({ error: "Erreur interne du serveur." });
+    }
+  },
+);
