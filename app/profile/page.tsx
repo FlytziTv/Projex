@@ -41,6 +41,32 @@ export default function ProfilePage() {
     }
   };
 
+  const handleDeleteToken = async (tokenId: string) => {
+    if (!confirm("Are you sure you want to delete this token?")) return;
+
+    try {
+      const jwtToken = localStorage.getItem("projex_token")?.replace(/"/g, "");
+
+      const response = await fetch(
+        `http://localhost:3001/api/auth/cli-token/${tokenId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
+        },
+      );
+
+      if (response.ok) {
+        setAllTokens((prev) => prev.filter((t) => t.id !== tokenId));
+      } else {
+        alert("Failed to delete token");
+      }
+    } catch (err) {
+      console.error("Erreur suppression:", err);
+    }
+  };
+
   useEffect(() => {
     fetchTokens();
   }, []);
@@ -104,9 +130,11 @@ export default function ProfilePage() {
                       allTokens.map((t) => (
                         <CardToken
                           key={t.id}
+                          id={t.id}
                           label={t.label || t.label}
                           token={t.token_hash || t.token_hash}
                           createdAt={t.createdAt}
+                          onDelete={handleDeleteToken}
                         />
                       ))
                     ) : (
@@ -283,13 +311,17 @@ function BlockDelete() {
 }
 
 function CardToken({
+  id,
   label,
   token,
   createdAt,
+  onDelete,
 }: {
+  id: string;
   label?: string;
   token: string;
   createdAt: string;
+  onDelete: (id: string) => void;
 }) {
   const maskedToken = token
     ? `${token.substring(0, 6)}••••${token.slice(-4)}`
@@ -302,7 +334,6 @@ function CardToken({
           {label || "CLI Token"}
         </p>
         <hr className="w-px rounded-full h-3.5 bg-border/40 border-none" />
-        {/* On affiche la version masquée */}
         <p className="text-xs font-mono text-muted-foreground">{maskedToken}</p>
         <hr className="w-px rounded-full h-3.5 bg-border/40 border-none" />
         <p className="text-xs text-muted-foreground/60">
@@ -310,8 +341,10 @@ function CardToken({
         </p>
       </div>
 
-      {/* On ne peut pas le copier, on peut juste le supprimer pour en refaire un nouveau */}
-      <button className="p-1.5 hover:bg-red-500/10 text-muted-foreground hover:text-red-500 rounded transition-colors">
+      <button
+        onClick={() => onDelete(id)}
+        className="p-1.5 hover:bg-red-500/10 text-muted-foreground hover:text-red-500 rounded transition-colors"
+      >
         <Trash size={14} />
       </button>
     </div>
@@ -319,14 +352,13 @@ function CardToken({
 }
 
 function BlockTokensGenerator({
-  onRefreshList, // Ajoute cette prop pour rafraîchir la liste en bas
+  onRefreshList,
 }: {
   onRefreshList: () => void;
 }) {
   const [token, setToken] = useState(""); // Vide par défaut
   const [showToken, setShowToken] = useState(false);
   const [tokenCopied, setTokenCopied] = useState(false);
-  const [error, setError] = useState("");
 
   const handleCopyToken = () => {
     if (!token) return;

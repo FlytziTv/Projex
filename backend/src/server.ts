@@ -668,3 +668,34 @@ app.get("/api/auth/cli-tokens", async (req: Request, res: Response) => {
     res.status(500).json({ error: "Erreur serveur" });
   }
 });
+
+app.delete("/api/auth/cli-token/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: "Non autorisé" });
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET as string,
+    ) as UserPayload;
+    const userId = decoded.userId;
+
+    const result = await pool.query(
+      "DELETE FROM cli_tokens WHERE id = $1 AND user_id = $2",
+      [id, userId],
+    );
+
+    if (result.rowCount === 0) {
+      return res
+        .status(404)
+        .json({ error: "Token non trouvé ou non autorisé" });
+    }
+
+    res.json({ message: "Token supprimé avec succès" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
