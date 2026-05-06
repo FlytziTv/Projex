@@ -64,10 +64,10 @@ export default function DocsPage() {
       </SidebarProvider>
 
       {/* Main Content */}
-      <main className="flex-1 h-full overflow-y-auto">
-        <div className=" px-6 py-8 space-y-8">
+      <main className="flex-1 h-full overflow-y-auto p-4 py-6 gap-6 flex flex-col">
+        <div className="flex flex-col gap-8 items-start justify-between">
           {/* Header */}
-          <div className="flex flex-col">
+          <div className="flex flex-col w-full">
             <h1 className="text-2xl font-bold">User Guide</h1>
             <p className="text-muted-foreground">
               Manage projects from web or CLI. Everything syncs in real-time.
@@ -75,7 +75,7 @@ export default function DocsPage() {
           </div>
 
           {/* Quick Overview */}
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-2 gap-4 w-full">
             <BlockColor
               icon={Layout}
               color="#3b82f6"
@@ -92,7 +92,7 @@ export default function DocsPage() {
           </div>
 
           {/* Getting Started */}
-          <section className="space-y-4">
+          <section className="space-y-4 w-full">
             <h2 className="text-lg font-semibold">Getting Started</h2>
 
             <div className="space-y-3">
@@ -126,7 +126,7 @@ export default function DocsPage() {
           </section>
 
           {/* Dashboard */}
-          <section className="space-y-4">
+          <section className="space-y-4 w-full">
             <h2 className="text-lg font-semibold">Dashboard</h2>
 
             <div className="space-y-3 text-sm">
@@ -148,7 +148,7 @@ export default function DocsPage() {
           </section>
 
           {/* CLI Commands */}
-          <section className="space-y-4">
+          <section className="space-y-4 w-full">
             <h2 className="text-lg font-semibold">CLI Commands</h2>
 
             <div className="space-y-2">
@@ -163,7 +163,7 @@ export default function DocsPage() {
           </section>
 
           {/* FAQ */}
-          <section className="space-y-4">
+          <section className="space-y-4 w-full">
             <h2 className="text-lg font-semibold">FAQ</h2>
 
             <div className="space-y-2">
@@ -174,7 +174,7 @@ export default function DocsPage() {
           </section>
 
           {/* Security */}
-          <section className="space-y-4">
+          <section className="space-y-4 w-full">
             <h2 className="text-lg font-semibold flex items-center gap-2">
               <Lock size={18} className="text-sz-1" />
               Security
@@ -200,7 +200,7 @@ export default function DocsPage() {
           </section>
 
           {/* Footer */}
-          <div className="pt-4 border-t border-border/20 text-xs text-muted-foreground text-center">
+          <div className="pt-4 border-t border-border/20 text-xs text-muted-foreground text-center w-full">
             <p>Projex v1.0.0 • Built for developers</p>
             <p className="mt-1">See USER_GUIDE.md for complete documentation</p>
           </div>

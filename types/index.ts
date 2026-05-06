@@ -24,3 +24,10 @@ export interface ProjectDetail {
   created_at: string;
   steps: Step[];
 }
+
+export type CLIToken = {
+  id: string;
+  label?: string;
+  token_hash: string;
+  createdAt: string;
+};

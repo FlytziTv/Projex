@@ -246,17 +246,21 @@ app.post(
       // 3. On génère un token CLI ultra-sécurisé (qui commence par "px_" pour Projex)
       const cliToken = "px_" + crypto.randomBytes(24).toString("hex");
 
+      const label =
+        req.body.label || "Token généré le " + new Date().toLocaleString();
+
       // 4. On sauvegarde ce nouveau token dans la base de données
       const insertQuery = `
-      INSERT INTO cli_tokens (user_id, token_hash) 
-      VALUES ($1, $2) 
+      INSERT INTO cli_tokens (user_id, token_hash, label) 
+      VALUES ($1, $2, $3) 
       RETURNING token_hash, created_at
     `;
-      const result = await pool.query(insertQuery, [userId, cliToken]);
+      const result = await pool.query(insertQuery, [userId, cliToken, label]);
 
       res.status(201).json({
         message: "Token CLI généré avec succès",
         cliToken: result.rows[0].token_hash,
+        label: result.rows[0].label,
       });
     } catch (error) {
       // Si le JWT est faux ou expiré, ça tombe ici
@@ -633,3 +637,34 @@ app.patch(
     }
   },
 );
+
+interface UserPayload {
+  userId: number;
+  email: string;
+}
+
+app.get("/api/auth/cli-tokens", async (req: Request, res: Response) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: "Non autorisé" });
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET as string,
+    ) as UserPayload;
+
+    // CORRECTION ICI : Utilise decoded.userId pour matcher ton interface
+    const userId = decoded.userId;
+
+    const result = await pool.query(
+      'SELECT id, token_hash, label, created_at as "createdAt" FROM cli_tokens WHERE user_id = $1 ORDER BY created_at DESC',
+      [userId],
+    );
+
+    res.json({ tokens: result.rows });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
