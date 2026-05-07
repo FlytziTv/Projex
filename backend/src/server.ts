@@ -778,7 +778,10 @@ app.get("/api/user/me", async (req: Request, res: Response) => {
     if (!authHeader) return res.status(401).json({ error: "Non autorisé" });
 
     const token = authHeader.split(" ")[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as any;
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET as string,
+    ) as UserPayload;
 
     // On récupère les infos en base
     const result = await pool.query(
@@ -791,6 +794,42 @@ app.get("/api/user/me", async (req: Request, res: Response) => {
 
     res.json(result.rows[0]);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
+app.post("/api/projects/:projectId/import-steps", async (req, res) => {
+  const { projectId } = req.params;
+  const { steps } = req.body;
+
+  try {
+    await pool.query("BEGIN");
+
+    // 1. On supprime d'abord toutes les étapes existantes pour ce projet
+    await pool.query("DELETE FROM steps WHERE project_id = $1", [projectId]);
+
+    // 2. On insère les nouvelles étapes du JSON
+    for (const step of steps) {
+      await pool.query(
+        "INSERT INTO steps (project_id, number, title, status, description) VALUES ($1, $2, $3, $4, $5)",
+        [
+          projectId,
+          step.number,
+          step.title,
+          step.status || "todo",
+          step.description,
+        ],
+      );
+    }
+
+    await pool.query("COMMIT");
+    res.json({
+      message: "Importation réussie (les anciennes étapes ont été remplacées)",
+    });
+  } catch (error) {
+    await pool.query("ROLLBACK");
+    console.error(error);
+    res.status(500).json({ error: "Erreur lors de l'importation" });
   }
 });
