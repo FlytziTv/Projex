@@ -106,6 +106,32 @@ app.get(
   },
 );
 
+app.patch("/api/projects/:id", async (req, res) => {
+  const { id } = req.params;
+  const { name, description } = req.body;
+  try {
+    await pool.query(
+      "UPDATE projects SET name = $1, description = $2 WHERE id = $3",
+      [name, description, id],
+    );
+    res.json({ message: "Projet mis à jour" });
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour du projet :", error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
+app.delete("/api/projects/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    await pool.query("DELETE FROM projects WHERE id = $1", [id]);
+    res.json({ message: "Projet supprimé" });
+  } catch (error) {
+    console.error("Erreur lors de la suppression du projet :", error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
 const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, async () => {

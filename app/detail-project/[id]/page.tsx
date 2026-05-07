@@ -10,6 +10,7 @@ import { CopyIdButton } from "@/components/actions/CopyIdButton";
 import DocsButton from "@/components/actions/DocsButton";
 import { CreateStepForm } from "@/components/projects/CreateStepForm";
 import StepImporter from "@/components/actions/StepImporter";
+import ProjectSettings from "@/components/actions/ProjectSettings";
 
 interface DetailProjectPageProps {
   params: Promise<{
@@ -122,13 +123,7 @@ export default async function DetailProjectPage({
               <DocsButton />
 
               {/* Bouton Plus d'options (3 points) */}
-              <button
-                className="flex items-center justify-center bg-card border border-border w-8 h-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors duration-200 cursor-pointer shadow-sm"
-                title="Paramètres du projet"
-                disabled
-              >
-                <Ellipsis size={16} />
-              </button>
+              <ProjectSettings project={project} />
             </div>
           </div>
         </div>
