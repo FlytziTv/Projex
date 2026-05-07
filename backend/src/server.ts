@@ -639,7 +639,7 @@ app.patch(
 );
 
 interface UserPayload {
-  userId: number;
+  userId: string;
   email: string;
 }
 
