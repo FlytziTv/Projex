@@ -1,6 +1,7 @@
 import { create } from "zustand";
 
 type ModalType =
+  | { type: "addProject" }
   | {
       type: "editProject";
       projectId: string;
