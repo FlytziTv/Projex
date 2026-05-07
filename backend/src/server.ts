@@ -812,7 +812,7 @@ app.post("/api/projects/:projectId/import-steps", async (req, res) => {
     // 2. On insère les nouvelles étapes du JSON
     for (const step of steps) {
       await pool.query(
-        "INSERT INTO steps (project_id, number, title, status, description) VALUES ($1, $2, $3, $4, $5)",
+        "INSERT INTO steps (project_id, number, title, status, note) VALUES ($1, $2, $3, $4, $5)",
         [
           projectId,
           step.number,
