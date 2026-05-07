@@ -17,15 +17,15 @@ export function ProjectsClient({ projects }: { projects: ProjectSummary[] }) {
       <main className="flex-1 h-full overflow-y-auto p-4 py-6 gap-6 flex flex-col">
         <div className="flex items-start justify-between">
           <div className="flex flex-col">
-            <h1 className="text-2xl font-bold">Vos Projects</h1>
+            <h1 className="text-2xl font-bold">Your Projects</h1>
             <p className="text-muted-foreground">
-              Gérez vos projets et étapes directement depuis votre terminal.
+              Manage your projects and tasks directly from your terminal.
             </p>
           </div>
 
           <Dialog.Trigger asChild>
             <button className="flex items-center justify-center gap-2 bg-foreground hover:bg-foreground/80 text-background font-medium h-8 px-3.5 rounded-md transition-colors duration-200 cursor-pointer text-sm">
-              <Plus size={16} /> Nouveau projet
+              <Plus size={16} /> New Project
             </button>
           </Dialog.Trigger>
         </div>
@@ -39,7 +39,7 @@ export function ProjectsClient({ projects }: { projects: ProjectSummary[] }) {
 
         {projects.length === 0 ? (
           <div className="w-full p-8 border border-dashed rounded-lg text-center text-muted-foreground">
-            Aucun projet trouvé. Créez-en un depuis le terminal ou la BDD.
+            No projects found. Create one from the terminal or the database.
           </div>
         ) : (
           <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">

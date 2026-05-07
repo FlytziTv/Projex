@@ -41,13 +41,13 @@ export default function NavBar() {
         <ItemSidebar
           Icon={CircleQuestionMark}
           href="/logs"
-          label="Aide & Support"
+          label="Help & support"
           ClassName="text-muted-foreground text-xs"
         />
         <ItemSidebar
           Icon={UserCircle}
           href="/profile"
-          label="Profil"
+          label="Profile"
           ClassName="text-muted-foreground text-xs"
         />
       </SideBarFooter>
