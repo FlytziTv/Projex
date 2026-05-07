@@ -6,7 +6,7 @@ import { useModalStore } from "@/store/modal.store";
 export default function ProjectSettings({
   project,
 }: {
-  project: { id: string; name: string; description: string };
+  project: { id: string; name: string; description: string; status: string };
 }) {
   const open = useModalStore((s) => s.open);
 
@@ -29,6 +29,7 @@ export default function ProjectSettings({
                 type: "editProject",
                 projectId: project.id,
                 name: project.name,
+                status: project.status,
                 description: project.description,
               })
             }

@@ -7,6 +7,7 @@ type ModalType =
       projectId: string;
       name: string;
       description: string;
+      status: string;
     }
   | { type: "deleteProject"; projectId: string }
   | { type: "importFile"; projectId: string }

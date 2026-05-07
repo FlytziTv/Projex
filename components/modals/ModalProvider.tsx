@@ -21,6 +21,7 @@ export function ModalProvider() {
           projectId={modal.projectId}
           name={modal.name}
           description={modal.description}
+          status={modal.status}
           onClose={close}
         />
       )}

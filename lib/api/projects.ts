@@ -30,7 +30,7 @@ export async function createProject(data: {
 
 export async function updateProject(
   projectId: string,
-  data: { name: string; description: string },
+  data: { name: string; description: string; status: string },
 ) {
   const res = await fetch(`${BASE}/projects/${projectId}`, {
     method: "PATCH",

@@ -13,6 +13,7 @@ interface CardProjectProps {
 
 interface CurrentStatusProps {
   name: string;
+  value: string;
   bg: string;
   led: string;
   pulse: boolean;

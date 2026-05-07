@@ -108,11 +108,11 @@ app.get(
 
 app.patch("/api/projects/:id", async (req, res) => {
   const { id } = req.params;
-  const { name, description } = req.body;
+  const { name, description, status } = req.body;
   try {
     await pool.query(
-      "UPDATE projects SET name = $1, description = $2 WHERE id = $3",
-      [name, description, id],
+      "UPDATE projects SET name = $1, description = $2, status = $3 WHERE id = $4",
+      [name, description, status, id],
     );
     res.json({ message: "Projet mis à jour" });
   } catch (error) {
@@ -365,7 +365,7 @@ app.post(
   async (req: Request, res: Response): Promise<void> => {
     const authHeader = req.headers.authorization;
     const projectId = req.params.id;
-    const { title } = req.body;
+    const { title, status } = req.body;
 
     // 1. Vérification des données envoyées
     if (!title) {
@@ -416,9 +416,9 @@ app.post(
       // 6. Insérer la nouvelle étape en base de données
       const insertResult = await pool.query(
         `INSERT INTO steps (project_id, number, title, status)
-        VALUES ($1, $2, $3, 'todo')
+        VALUES ($1, $2, $3, $4)
         RETURNING *`,
-        [projectId, nextNumber, title],
+        [projectId, nextNumber, title, status],
       );
 
       res.status(201).json({ step: insertResult.rows[0] });
@@ -433,7 +433,7 @@ app.post(
   "/api/projects",
   async (req: Request, res: Response): Promise<void> => {
     const authHeader = req.headers.authorization;
-    const { name, description } = req.body;
+    const { name, description, status } = req.body;
 
     if (!name || name.trim() === "") {
       res.status(400).json({ error: "Le nom du projet est obligatoire." });
@@ -452,14 +452,20 @@ app.post(
       const decoded = jwt.verify(jwtToken, JWT_SECRET) as { userId: number };
       const userId = decoded.userId;
 
+      const projectStatus = status || "active";
       // 2. On insère le projet (il sera en statut 'active' par défaut)
       // On génère un UUID automatiquement avec gen_random_uuid()
       const query = `
-      INSERT INTO projects (user_id, name, description, status) 
-      VALUES ($1, $2, $3, 'active') 
-      RETURNING *
-    `;
-      const result = await pool.query(query, [userId, name, description]);
+        INSERT INTO projects (user_id, name, description, status) 
+        VALUES ($1, $2, $3, $4) 
+        RETURNING *
+      `;
+      const result = await pool.query(query, [
+        userId,
+        name,
+        description,
+        projectStatus,
+      ]);
 
       res.status(201).json(result.rows[0]);
     } catch (error) {
@@ -474,7 +480,7 @@ app.post(
   async (req: Request, res: Response): Promise<void> => {
     const authHeader = req.headers.authorization;
     const projectId = req.params.id;
-    const { title, note } = req.body;
+    const { title, note, status } = req.body;
 
     if (!title || title.trim() === "") {
       res.status(400).json({ error: "Le titre de l'étape est obligatoire." });
@@ -512,16 +518,17 @@ app.post(
       const stepNumberResult = await pool.query(stepNumberQuery, [projectId]);
       const nextStepNumber = stepNumberResult.rows[0].next_number;
 
-      // 4. Insérer la nouvelle étape (en statut 'todo' par défaut)
+      // 4. Insérer la nouvelle étape dans la base de données
       const insertQuery = `
         INSERT INTO steps (project_id, number, title, status, note)
-        VALUES ($1, $2, $3, 'todo', $4)
+        VALUES ($1, $2, $3, $4, $5)
         RETURNING *
       `;
       const newStepResult = await pool.query(insertQuery, [
         projectId,
         nextStepNumber,
         title,
+        status || "todo",
         note || "",
       ]);
       res.status(201).json(newStepResult.rows[0]);
