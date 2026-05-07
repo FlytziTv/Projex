@@ -8,7 +8,7 @@ import NavBar, { SidebarProvider } from "@/components/layout/NavBar";
 import { CopyIdButton } from "@/components/actions/CopyIdButton";
 import DocsButton from "@/components/actions/DocsButton";
 import { AddStepButton } from "@/components/actions/AddStepButton";
-import StepImporter from "@/components/actions/StepImporter";
+import StepImporter from "@/components/modals/ImportFileDialog";
 import ProjectSettings from "@/components/actions/ProjectSettings";
 
 interface DetailProjectPageProps {

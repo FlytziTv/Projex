@@ -8,6 +8,7 @@ type ModalType =
       description: string;
     }
   | { type: "deleteProject"; projectId: string }
+  | { type: "importFile"; projectId: string }
   | { type: "addStep"; projectId: string }
   | {
       type: "editStep";
