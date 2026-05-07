@@ -1,4 +1,32 @@
+import { Step } from "@/types";
+
 const BASE = "http://localhost:3001/api";
+
+export async function createStep(
+  projectId: string,
+  data: { title: string; note: string; status: string },
+) {
+  const token = localStorage.getItem("projex_token");
+  const res = await fetch(`${BASE}/projects/${projectId}/steps`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const contentType = res.headers.get("content-type");
+    if (contentType?.includes("application/json")) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || "Erreur création étape");
+    }
+    throw new Error(`Erreur ${res.status}: ${res.statusText}`);
+  }
+  const createdStep: Step = await res.json();
+  return createdStep;
+}
 
 export async function updateStep(
   projectId: string,

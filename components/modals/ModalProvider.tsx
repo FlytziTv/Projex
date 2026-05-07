@@ -4,6 +4,7 @@ import { EditProjectDialog } from "./EditProjectDialog";
 import { DeleteProjectAlert } from "./DeleteProjectAlert";
 import { EditStepDialog } from "./EditStepDialog";
 import { DeleteStepAlert } from "./DeleteStepAlert";
+import AddStepDialog from "./AddStepDialog";
 
 export function ModalProvider() {
   const { modal, close } = useModalStore();
@@ -22,6 +23,9 @@ export function ModalProvider() {
       )}
       {modal.type === "deleteProject" && (
         <DeleteProjectAlert {...modal} onClose={close} />
+      )}
+      {modal.type === "addStep" && (
+        <AddStepDialog projectId={modal.projectId} onClose={close} />
       )}
       {modal.type === "editStep" && (
         <EditStepDialog

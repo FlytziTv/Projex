@@ -1,14 +1,13 @@
-// app/detail-project/[id]/page.tsx
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { statusProjects } from "@/lib/status-project";
 import { KanbanColumn } from "@/components/kanban/KanbanColumn";
 import { ProjectDetail, StepStatus, Step } from "@/types/project";
-import { ArrowLeft, Ellipsis } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import NavBar, { SidebarProvider } from "@/components/layout/NavBar";
 import { CopyIdButton } from "@/components/actions/CopyIdButton";
 import DocsButton from "@/components/actions/DocsButton";
-import { CreateStepForm } from "@/components/projects/CreateStepForm";
+import { AddStepButton } from "@/components/actions/AddStepButton";
 import StepImporter from "@/components/actions/StepImporter";
 import ProjectSettings from "@/components/actions/ProjectSettings";
 
@@ -109,7 +108,7 @@ export default async function DetailProjectPage({
             {/* BARRE D'ACTIONS DU PROJET */}
             <div className="flex items-center gap-2 w-full md:w-auto shrink-0 mt-4 md:mt-0">
               {/* Bouton Primaire : Ajouter une étape */}
-              <CreateStepForm projectId={project.id} />
+              <AddStepButton projectId={project.id} />
 
               <StepImporter projectId={project.id} />
 
