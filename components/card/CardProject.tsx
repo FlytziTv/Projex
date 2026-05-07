@@ -37,17 +37,11 @@ export function CardProject({
           <h2 className="font-heading text-base font-semibold leading-normal">
             {Project.name}
           </h2>
-          <p className="text-sm text-muted-foreground">{Project.description}</p>
+          <p className="text-sm text-muted-foreground">
+            {Project.description || "-"}
+          </p>
         </div>
 
-        {/* <div
-          className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium shrink-0 ${currentStatus.bg}`}
-        >
-          <div
-            className={`aspect-square w-1.5 rounded-full ${currentStatus.led} ${currentStatus.pulse ? "animate-pulse" : ""}`}
-          />
-          {currentStatus.name}
-        </div> */}
         <div className="flex items-center gap-2 px-2.5 py-1 border border-border rounded-md bg-card text-xs font-medium">
           <div
             className={`${currentStatus.bg} aspect-square w-2.5 rounded-full flex items-center justify-center`}
