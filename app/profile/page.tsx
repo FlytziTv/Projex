@@ -13,9 +13,9 @@ import { AlertDialogContent } from "@/components/layout/RootContent";
 
 export default function ProfilePage() {
   const [allTokens, setAllTokens] = useState<CLIToken[]>([]);
-  const [userid] = useState("1234567890abcdefake");
   const [userIdCopied, setUserIdCopied] = useState(false);
 
+  const [userid, setUserid] = useState("");
   const [userName, setUserName] = useState("");
   const [userEmail, setUserEmail] = useState("");
   const [userPassword, setUserPassword] = useState("");
@@ -105,6 +105,29 @@ export default function ProfilePage() {
   };
 
   useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const jwtToken = localStorage
+          .getItem("projex_token")
+          ?.replace(/"/g, "");
+        if (!jwtToken) return;
+
+        const response = await fetch("http://localhost:3001/api/user/me", {
+          headers: { Authorization: `Bearer ${jwtToken}` },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUserid(data.id);
+          setUserName(data.name || "");
+          setUserEmail(data.email || "");
+        }
+      } catch (err) {
+        console.error("Erreur chargement profil:", err);
+      }
+    };
+
+    fetchUserData();
     fetchTokens();
   }, []);
 

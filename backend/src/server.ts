@@ -771,3 +771,26 @@ app.delete("/api/user/me", async (req: Request, res: Response) => {
     res.status(500).json({ error: "Erreur serveur" });
   }
 });
+
+app.get("/api/user/me", async (req: Request, res: Response) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: "Non autorisé" });
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as any;
+
+    // On récupère les infos en base
+    const result = await pool.query(
+      "SELECT id, name, email FROM users WHERE id = $1",
+      [decoded.userId],
+    );
+
+    if (result.rows.length === 0)
+      return res.status(404).json({ error: "User non trouvé" });
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
