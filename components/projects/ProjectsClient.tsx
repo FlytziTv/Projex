@@ -5,7 +5,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { CardProject } from "@/components/card/CardProject";
 import { statusProjects } from "@/lib/status-project";
 import { CreateProjectForm } from "@/components/projects/CreateProjectForm";
-import DialogContent from "@/components/layout/DialogContent";
+import { DialogContent } from "../layout/RootContent";
 import { ProjectSummary } from "@/app/page";
 import { Plus } from "lucide-react";
 
