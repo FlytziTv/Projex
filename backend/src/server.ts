@@ -859,3 +859,14 @@ app.post("/api/projects/:projectId/import-steps", async (req, res) => {
     res.status(500).json({ error: "Erreur lors de l'importation" });
   }
 });
+
+app.delete("/api/steps/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    await pool.query("DELETE FROM steps WHERE id = $1", [id]);
+    res.json({ message: "Étape supprimée avec succès" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erreur lors de la suppression de l'étape" });
+  }
+});

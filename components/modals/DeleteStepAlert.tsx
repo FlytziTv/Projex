@@ -1,17 +1,17 @@
 "use client";
+import { deleteStep } from "@/lib/api/tasks";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import { useRouter } from "next/navigation";
-import { deleteProject } from "@/lib/api/projects";
 
-type Props = { projectId: string; onClose: () => void };
+type Props = { stepId: string; onClose: () => void };
 
-export function DeleteProjectAlert({ projectId, onClose }: Props) {
+export function DeleteStepAlert({ stepId, onClose }: Props) {
   const router = useRouter();
 
   const handleConfirm = async () => {
-    await deleteProject(projectId);
+    await deleteStep(stepId);
     onClose();
-    router.push("/");
+    router.refresh();
   };
 
   return (
@@ -20,15 +20,18 @@ export function DeleteProjectAlert({ projectId, onClose }: Props) {
         <AlertDialog.Overlay className="fixed inset-0 z-50 bg-black/10 backdrop-blur-xs" />
         <AlertDialog.Content className="fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-popover p-4 ring-1 ring-foreground/10">
           <AlertDialog.Title className="font-heading text-base font-medium">
-            Supprimer le projet ?
+            Supprimer l&apos;étape ?
           </AlertDialog.Title>
           <AlertDialog.Description className="mt-2 text-sm text-muted-foreground">
-            Cette action est irréversible. Le projet et toutes ses étapes seront
-            supprimés.
+            Êtes-vous sûr de vouloir supprimer cette étape ? Cette action est
+            irréversible.
           </AlertDialog.Description>
           <div className="flex justify-end gap-3 mt-6">
             <AlertDialog.Cancel asChild>
-              <button className="bg-transparent hover:bg-foreground/10 border text-foreground font-medium py-2 px-6 rounded-md transition-colors cursor-pointer">
+              <button
+                onClick={onClose}
+                className="bg-transparent hover:bg-foreground/10 border text-foreground font-medium py-2 px-6 rounded-md transition-colors cursor-pointer"
+              >
                 Annuler
               </button>
             </AlertDialog.Cancel>

@@ -1,4 +1,3 @@
-// components/ProjectSettings.tsx
 "use client";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { Ellipsis, Pencil, Trash2 } from "lucide-react";

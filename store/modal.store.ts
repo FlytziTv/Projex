@@ -7,7 +7,16 @@ type ModalType =
       name: string;
       description: string;
     }
-  | { type: "deleteProject"; projectId: string };
+  | { type: "deleteProject"; projectId: string }
+  | {
+      type: "editStep";
+      projectId: string;
+      stepNumber: number;
+      title: string;
+      note: string | null;
+      status: string;
+    }
+  | { type: "deleteStep"; stepId: string };
 
 type ModalStore = {
   modal: ModalType | null;
