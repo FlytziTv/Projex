@@ -54,7 +54,7 @@ export function AddProjectDialog({ onClose }: Props) {
               <InputGroupLabel>Nom du projet</InputGroupLabel>
               <InputGroupInput
                 type="text"
-                placeholder="Ex: Configuration Prisma..."
+                placeholder="Ex: Creation d'une API REST..."
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 disabled={isLoading}
