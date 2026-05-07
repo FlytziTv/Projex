@@ -9,6 +9,7 @@ import NavBar, { SidebarProvider } from "@/components/layout/NavBar";
 import { CopyIdButton } from "@/components/actions/CopyIdButton";
 import DocsButton from "@/components/actions/DocsButton";
 import { CreateStepForm } from "@/components/projects/CreateStepForm";
+import StepImporter from "@/components/actions/StepImporter";
 
 interface DetailProjectPageProps {
   params: Promise<{
@@ -108,6 +109,8 @@ export default async function DetailProjectPage({
             <div className="flex items-center gap-2 w-full md:w-auto shrink-0 mt-4 md:mt-0">
               {/* Bouton Primaire : Ajouter une étape */}
               <CreateStepForm projectId={project.id} />
+
+              <StepImporter projectId={project.id} />
 
               {/* Bouton Secondaire : Copier l'ID */}
               <CopyIdButton projectId={project.id} />
