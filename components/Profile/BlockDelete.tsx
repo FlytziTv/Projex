@@ -1,4 +1,10 @@
-export function BlockDelete({ onOpen }: { onOpen: () => void }) {
+"use client";
+
+import { useModalStore } from "@/store/modal.store";
+
+export function BlockDelete() {
+  const open = useModalStore((s) => s.open);
+
   return (
     <div className="border border-destructive/40 rounded-sm w-full">
       <div className="bg-muted/20 p-4 flex flex-col gap-4">
@@ -15,7 +21,7 @@ export function BlockDelete({ onOpen }: { onOpen: () => void }) {
       </div>
       <div className="flex flex-row items-center justify-end p-3 bg-destructive/10 border-t border-destructive/20">
         <button
-          onClick={onOpen}
+          onClick={() => open({ type: "deleteAccount" })}
           className="text-sm font-medium h-7 px-3 bg-destructive text-foreground hover:bg-destructive/80 active:scale-95 rounded transition-all duration-200"
         >
           Delete Personal Account
