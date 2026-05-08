@@ -1,0 +1,9 @@
+{
+  "auth": {
+    "login": { "title": "Connexion" },
+    "register": { "title": "Inscription" }
+  },
+  "profile": { "title": "Mon profil" },
+  "docs": { "title": "Documentation" },
+  "detail_project": { "title": "Détail du projet" }
+}
