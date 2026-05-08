@@ -2,7 +2,7 @@
 
 import { CardProject } from "@/components/card/CardProject";
 import { statusProjects } from "@/lib/status-project";
-import { ProjectSummary } from "@/app/page";
+import { ProjectSummary } from "@/app/[locale]/page";
 import { Plus } from "lucide-react";
 import { useModalStore } from "@/store/modal.store";
 
