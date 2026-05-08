@@ -7,7 +7,7 @@ import {
   InputGroupInput,
   InputGroupLabel,
   InputGroupTextarea,
-} from "../ui/MyInput";
+} from "../../ui/MyInput";
 import { useState } from "react";
 
 type Props = { projectId: string; onClose: () => void };

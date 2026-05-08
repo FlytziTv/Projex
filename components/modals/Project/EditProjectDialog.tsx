@@ -8,7 +8,7 @@ import {
   InputGroupInput,
   InputGroupLabel,
   InputGroupTextarea,
-} from "../ui/MyInput";
+} from "../../ui/MyInput";
 
 type Props = {
   projectId: string;

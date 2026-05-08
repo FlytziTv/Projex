@@ -1,6 +1,7 @@
 import { create } from "zustand";
 
 type ModalType =
+  // Project Modals
   | { type: "addProject" }
   | {
       type: "editProject";
@@ -10,6 +11,8 @@ type ModalType =
       status: string;
     }
   | { type: "deleteProject"; projectId: string }
+
+  // Step Modals
   | { type: "importFile"; projectId: string }
   | { type: "addStep"; projectId: string }
   | {
@@ -20,7 +23,15 @@ type ModalType =
       note: string | null;
       status: string;
     }
-  | { type: "deleteStep"; stepId: string };
+  | { type: "deleteStep"; stepId: string }
+
+  // Token Modals
+  | { type: "addToken" }
+  | { type: "editToken"; tokenId: string; label: string }
+  | { type: "deleteToken"; tokenId: string }
+
+  // Account Modals
+  | { type: "deleteAccount"; userid: string };
 
 type ModalStore = {
   modal: ModalType | null;
