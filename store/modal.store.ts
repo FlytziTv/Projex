@@ -26,12 +26,16 @@ type ModalType =
   | { type: "deleteStep"; stepId: string }
 
   // Token Modals
-  | { type: "addToken" }
+  | { type: "addToken"; onSuccess?: (token: string) => void }
   | { type: "editToken"; tokenId: string; label: string }
-  | { type: "deleteToken"; tokenId: string }
+  | {
+      type: "deleteToken";
+      tokenId: string;
+      onSuccess: (tokenId: string) => void;
+    }
 
   // Account Modals
-  | { type: "deleteAccount"; userid: string };
+  | { type: "deleteAccount" };
 
 type ModalStore = {
   modal: ModalType | null;
