@@ -16,8 +16,9 @@ export default function DeleteAccountAlert({ onClose }: Props) {
     setError(null);
     try {
       await deleteAccount();
+      localStorage.removeItem("projex_token");
       onClose();
-      router.refresh();
+      router.push("/login");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Une erreur est survenue");
     } finally {
