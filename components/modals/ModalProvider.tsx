@@ -54,7 +54,9 @@ export function ModalProvider() {
         <DeleteStepAlert stepId={modal.stepId} onClose={close} />
       )}
       {/* Token Modals */}
-      {modal.type === "addToken" && <AddTokenDialog onClose={close} />}
+      {modal.type === "addToken" && (
+        <AddTokenDialog onClose={close} onSuccess={modal.onSuccess} />
+      )}
       {modal.type === "editToken" && (
         <EditTokenDialog
           tokenId={modal.tokenId}
@@ -63,12 +65,14 @@ export function ModalProvider() {
         />
       )}
       {modal.type === "deleteToken" && (
-        <DeleteTokenAlert tokenId={modal.tokenId} onClose={close} />
+        <DeleteTokenAlert
+          tokenId={modal.tokenId}
+          onClose={close}
+          onSuccess={modal.onSuccess}
+        />
       )}
       {/* Account Modals */}
-      {modal.type === "deleteAccount" && (
-        <DeleteAccountAlert userid={modal.userid} onClose={close} />
-      )}
+      {modal.type === "deleteAccount" && <DeleteAccountAlert onClose={close} />}
     </>
   );
 }
