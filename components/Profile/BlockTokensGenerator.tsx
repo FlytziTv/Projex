@@ -3,13 +3,14 @@
 import { cn } from "@/lib/utils";
 import { Check, Copy, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
-import TokenGenerator from "../actions/TokenGenerator";
+import { useModalStore } from "@/store/modal.store";
 
 export function BlockTokensGenerator({
   onRefreshList,
 }: {
   onRefreshList: () => void;
 }) {
+  const open = useModalStore((s) => s.open);
   const [token, setToken] = useState(""); // Vide par défaut
   const [showToken, setShowToken] = useState(false);
   const [tokenCopied, setTokenCopied] = useState(false);
@@ -19,6 +20,11 @@ export function BlockTokensGenerator({
     setTokenCopied(true);
     navigator.clipboard.writeText(token);
     setTimeout(() => setTokenCopied(false), 2000);
+  };
+
+  const handleTokenGenerated = (newToken: string) => {
+    setToken(newToken);
+    onRefreshList();
   };
 
   return (
@@ -71,15 +77,17 @@ export function BlockTokensGenerator({
           This token is used for CLI authentication
         </p>
 
-        {/* Ton composant Dialog externe */}
-        <TokenGenerator
-          onTokenGenerated={(newToken) => setToken(newToken)}
-          onSuccess={onRefreshList} // On appelle la prop ici
+        <button
+          onClick={() =>
+            open({
+              type: "addToken",
+              onSuccess: handleTokenGenerated,
+            })
+          }
+          className="text-sm font-medium h-7 px-4 bg-foreground text-background rounded hover:bg-foreground/80 transition-all"
         >
-          <button className="text-sm font-medium h-7 px-4 bg-foreground text-background rounded hover:bg-foreground/80 transition-all">
-            Generate
-          </button>
-        </TokenGenerator>
+          Generate
+        </button>
       </div>
     </div>
   );
